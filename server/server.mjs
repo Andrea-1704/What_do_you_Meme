@@ -2,6 +2,14 @@
 import express, {json} from 'express';
 import morgan from 'morgan';
 import { getAMeme, getDidascaliaById, createMeme, getCorrectDid, getUncorrectDid, addDidascalia, addAssociazione } from './Dao.mjs';
+import cors from 'cors'; // Aggiungi questa riga
+
+
+// Passport-related imports
+import passport from 'passport';
+import LocalStrategy from 'passport-local';
+import session from 'express-session';
+
 
 // init
 const app = express();
@@ -10,6 +18,47 @@ const port = 3001;
 // middleware
 app.use(json());
 app.use(morgan('dev'));
+
+
+// middleware
+app.use(express.json());
+app.use(morgan('dev'));
+// set up and enable CORS -- UPDATED
+const corsOptions = {
+  origin: 'http://localhost:5173',
+  optionsSuccessStatus: 200,
+  credentials: true
+  /*
+  credential true ci serve per andare a consentire al server di 
+  inviare cookie di sessione al client, ovvero per dire al server
+  che può accettare i cookie di un client che non è sullo 
+  stesso dominio del server
+  */
+};
+app.use(cors(corsOptions));
+
+
+// Passport: set up local strategy -- NEW
+passport.use(new LocalStrategy(async function verify(username, password, cb) {
+  const user = await getUser(username, password);
+  if(!user)
+    return cb(null, false, 'Incorrect username or password.');
+  //non do indizi all'utente su quale delle due credenziali è sbagliata
+    
+  return cb(null, user);
+}));
+//questo è il setup della local strategy. La local strategy è una strategia di autenticazione
+//che permette di autenticare un utente tramite username e password.
+//verify(username, password, cb) è il metodo per verificare le credenziali dell'utente.
+
+passport.serializeUser(function (user, cb) {
+  cb(null, user);
+});
+
+passport.deserializeUser(function (user, cb) { // this user is id + email + name
+  return cb(null, user);
+  // if needed, we can do extra check here (e.g., double check that the user is still in the database, etc.)
+});
 
 /* ROUTE */
 
@@ -28,6 +77,28 @@ app.get('/api/meme/:id/correct', (request, response) => {
   .then(did => response.json(did))
   .catch(() => response.status(500).end());
 })
+
+
+const isLoggedIn = (req, res, next) => {
+  //quando voglio che l'utente sia autenticato per accedere a una risorsa
+  //uso questa funzione
+  if(req.isAuthenticated()) {
+    return next();
+  }
+  return res.status(401).json({error: 'Not authorized'});
+}
+
+app.use(session({
+  secret: "shhhhh... it's a secret!",
+  //uso questo secret per firmare il cookie di sessione
+  resave: false,
+  saveUninitialized: false,
+}));
+app.use(passport.authenticate('session'));
+//questo metodo lo posso copiare e serve solo per fare la sessione
+//di autenticazione con passport
+
+
 
 //metodo per ottenere cinque descrizioni scorrette per
 //un meme:
@@ -48,6 +119,52 @@ app.get('/api/didascalia/:id', (request, response) => {
 
 
 
+// const isLoggedIn = (req, res, next) => {
+//   //quando voglio che l'utente sia autenticato per accedere a una risorsa
+//   //uso questa funzione
+//   if(req.isAuthenticated()) {
+//     return next();
+//   }
+//   return res.status(401).json({error: 'Not authorized'});
+// }
+
+
+// POST /api/sessions -- NEW
+app.post('/api/sessions', function(req, res, next) {
+  passport.authenticate('local', (err, user, info) => {
+    if (err)
+      return next(err);
+      if (!user) {
+        // display wrong login messages
+        return res.status(401).send(info);
+      }
+      // success, perform the login
+      req.login(user, (err) => {
+        if (err)
+          return next(err);
+        
+        // req.user contains the authenticated user, we send all the user info back
+        return res.status(201).json(req.user);
+      });
+  })(req, res, next);
+});
+
+
+// GET /api/sessions/current -- NEW
+app.get('/api/sessions/current', (req, res) => {
+  //se l'utente è autenticato restituisco l'utente
+  if(req.isAuthenticated()) {
+    res.json(req.user);}
+  else
+    res.status(401).json({error: 'Not authenticated'});
+});
+
+// DELETE /api/session/current -- NEW
+app.delete('/api/sessions/current', (req, res) => {
+  req.logout(() => {
+    res.end();
+  });
+});
 
 
 
