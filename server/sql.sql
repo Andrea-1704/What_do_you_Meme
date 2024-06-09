@@ -1,0 +1,8 @@
+-- SQLite
+CREATE TABLE Meme (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nameURL TEXT
+);
+
+ATTACH DATABASE 'db.db' AS db;
+INSERT INTO db.Meme (nameURL) VALUES ('example');
