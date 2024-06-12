@@ -18,6 +18,21 @@
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
+.nav-header {
+  background-color: greenyellow;
+  color: white;
+  padding: 15px;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between; /* content alignment */
+  align-items: center; /* content vertically */
+}
+
+
 @keyframes logo-spin {
   from {
     transform: rotate(0deg);

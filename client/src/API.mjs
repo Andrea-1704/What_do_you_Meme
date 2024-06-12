@@ -47,5 +47,15 @@ const logOut = async() => {
     return null;
 }
 
-const API = {logIn, logOut, getUserInfo};
+const fetchMeme = async () => {
+  const response = await fetch(SERVER_URL + '/api/meme');
+    if (!response.ok) {
+      throw new Error('Failed to fetch meme');
+    }
+    const meme = await response.json();
+  return meme;
+  
+};
+
+const API = {logIn, logOut, getUserInfo, fetchMeme};
 export default API;

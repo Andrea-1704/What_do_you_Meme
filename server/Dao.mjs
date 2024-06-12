@@ -20,7 +20,8 @@ export const getAMeme = () => {
       } else {
         if (rows.length > 0) {
           const row = rows[0];
-          const meme = new Meme(row.id, row.path);
+          const meme = new Meme(row.id, row.nameUrl);
+          //console.log(meme.path)
           resolve(meme);
         } else {
           resolve(null);  // Nessun meme trovato

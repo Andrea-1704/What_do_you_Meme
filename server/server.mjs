@@ -63,6 +63,7 @@ passport.deserializeUser(function (user, cb) { // this user is id + email + name
 /* ROUTE */
 
 // GET /api/meme
+//metodo che mi consente di ottenere un meme
 app.get('/api/meme', (request, response) => {
   getAMeme()
   .then(meme => response.json(meme))
