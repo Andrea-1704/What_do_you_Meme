@@ -1,11 +1,13 @@
-import React, { useState, useEffect, Link } from 'react';
+import React, { useState, useEffect } from 'react';
 import API from '../API.mjs';
+import { useNavigate } from 'react-router-dom';
 
 function RandomMeme() {
   const [meme, setMeme] = useState(null);
   const [error, setError] = useState(null);
   const [didascalie, setDidascalie] = useState([]);
-
+  const navigate=useNavigate();
+  
   useEffect(() => {
     const fetchMeme = async () => {
       try {
@@ -28,6 +30,7 @@ function RandomMeme() {
           const correctData = await API.fetchDidascalieCorrette(meme.id);
           const allDidascalie = [...correctData, ...uncorrectData];
           const shuffledDidascalie = allDidascalie.sort(() => Math.random() - 0.5);
+          console.log(shuffledDidascalie);
           setDidascalie(shuffledDidascalie);
         } catch (err) {
           throw new Error('Failed to fetch didascalie');
@@ -46,15 +49,22 @@ function RandomMeme() {
   if (!meme) {
     return <div>Loading...</div>;
   }
-
+  
   const gestisciDidClick = async (didascaliaId) => {
+    
     try {
       const score = await API.getPunteggio(meme.id, didascaliaId);
-      if (score === "5") {
-        return <Link to="/risposta/effettuata/1">Risposta corretta!</Link>;
+      let corretto=0;
+      console.log(score)
+      const isCorrect = parseInt(score);
+
+      console.log(score)
+      if (isCorrect === 5) {
+        corretto=1;
+        navigate(`/risposta/${corretto}`);
       } else {
         // Se la didascalia non è corretta
-        return <Link to="/risposta/effettuata/0">Risposta errata!</Link>;
+        navigate(`/risposta/${corretto}`);
       }
     } catch (err) {
       console.error(err);

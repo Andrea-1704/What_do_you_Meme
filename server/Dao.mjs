@@ -156,7 +156,18 @@ export const getPunteggio = (idMeme, idDid) => {
     });
   }
   
-
+//crea un  utente:
+export const createUser = (name, surname, mail, hashedPassword, salt) => {
+  return new Promise((resolve, reject) => {
+    const sql = `INSERT INTO user (name, surname, email, hashedPassword, salt) VALUES (?, ?, ?, ?, ?)`;
+    db.run(sql, [name, surname, mail, hashedPassword, salt], function(err) {
+      if (err)
+        reject(err);
+      else
+        resolve(this.lastID);
+    });
+  });
+}
 
 //registra un round
 export const addRound = (idMeme, idDidS, idDidC1, idDidC2, punteggio) => {

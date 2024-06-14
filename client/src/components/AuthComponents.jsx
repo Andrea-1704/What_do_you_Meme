@@ -3,12 +3,13 @@ import { Form, Button, Row, Col } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
 function LoginForm(props) {
-  const [username, setUsername] = useState('');
+  const [mail, setMail] = useState('');
   const [password, setPassword] = useState('');
   
   const handleSubmit = (event) => {
     event.preventDefault();
-    const credentials = { username, password };
+    const credentials = { mail, password };
+    // eslint-disable-next-line react/prop-types
     props.login(credentials);
   };
 
@@ -18,7 +19,7 @@ function LoginForm(props) {
         <Form onSubmit={handleSubmit}>
           <Form.Group controlId='username' className='mb-3'>
             <Form.Label>Email</Form.Label>
-            <Form.Control type='email' value={username} onChange={ev => setUsername(ev.target.value)} required />
+            <Form.Control type='email' value={mail} onChange={ev => setMail(ev.target.value)} required />
           </Form.Group>
 
           <Form.Group controlId='password' className='mb-3'>

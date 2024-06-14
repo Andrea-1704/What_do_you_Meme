@@ -1,15 +1,15 @@
 // import
 import express, {json} from 'express';
 import morgan from 'morgan';
-import { getAMeme, getDidascaliaById, createMeme, getCorrectDid, getPunteggio, getUncorrectDid, addDidascalia, addAssociazione } from './Dao.mjs';
+import { getAMeme, createUser, getDidascaliaById, createMeme, getCorrectDid, getPunteggio, getUncorrectDid, addDidascalia, addAssociazione } from './Dao.mjs';
 import cors from 'cors'; // Aggiungi questa riga
-
+import crypto from 'crypto'; // Aggiungi questa riga
 
 // Passport-related imports
 import passport from 'passport';
 import LocalStrategy from 'passport-local';
 import session from 'express-session';
-
+import { getUser } from './user-dao.mjs';
 
 // init
 const app = express();
@@ -37,10 +37,9 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-
 // Passport: set up local strategy -- NEW
-passport.use(new LocalStrategy(async function verify(username, password, cb) {
-  const user = await getUser(username, password);
+passport.use(new LocalStrategy(async function verify(email, password, cb) {
+  const user = await getUser(email, password);
   if(!user)
     return cb(null, false, 'Incorrect username or password.');
   //non do indizi all'utente su quale delle due credenziali è sbagliata
@@ -78,15 +77,13 @@ app.get('/api/meme/:idM/didascalia/:idd', (request, response) => {
   .catch(() => response.status(500).end());
 })
 
-//metodo per ottenere due tra le descrizioni 
-//corrette per il meme
+//metodo per ottenere due descrizioni corrette per il meme
 // GET /api/meme
 app.get('/api/meme/:id/correct', (request, response) => {
   getCorrectDid(request.params.id)
   .then(did => response.json(did))
   .catch(() => response.status(500).end());
 })
-
 
 const isLoggedIn = (req, res, next) => {
   //quando voglio che l'utente sia autenticato per accedere a una risorsa
@@ -108,7 +105,6 @@ app.use(passport.authenticate('session'));
 //di autenticazione con passport
 
 
-
 //metodo per ottenere cinque descrizioni scorrette per
 //un meme:
 
@@ -126,20 +122,8 @@ app.get('/api/didascalia/:id', (request, response) => {
   .catch(() => response.status(500).end());
 })
 
-
-
-
-// const isLoggedIn = (req, res, next) => {
-//   //quando voglio che l'utente sia autenticato per accedere a una risorsa
-//   //uso questa funzione
-//   if(req.isAuthenticated()) {
-//     return next();
-//   }
-//   return res.status(401).json({error: 'Not authorized'});
-// }
-
-
-// POST /api/sessions -- NEW
+// POST /api/sessions -- 
+//questa funzione mi consente di effettuare il login di un utente
 app.post('/api/sessions', function(req, res, next) {
   passport.authenticate('local', (err, user, info) => {
     if (err)
@@ -159,7 +143,6 @@ app.post('/api/sessions', function(req, res, next) {
   })(req, res, next);
 });
 
-
 // GET /api/sessions/current -- NEW
 app.get('/api/sessions/current', (req, res) => {
   //se l'utente è autenticato restituisco l'utente
@@ -176,9 +159,6 @@ app.delete('/api/sessions/current', (req, res) => {
   });
 });
 
-
-
-
 //metodi per riesmpire il database:
 // POST /api/meme
 app.post('/api/meme', (request, response) => {
@@ -187,6 +167,7 @@ app.post('/api/meme', (request, response) => {
   .then(questions => response.json(questions))
   .catch(() => response.status(500).end());
 })
+
 app.post('/api/didascalie', (request, response) => {
   console.log(request.body)
   const didascalia = request.body;
@@ -194,6 +175,7 @@ app.post('/api/didascalie', (request, response) => {
   .then(questions => response.json(questions))
   .catch(() => response.status(500).end());
 })
+
 //metodo post per aggiungere associazione tra meme e didascalia
 app.post('/api/associazione', (request, response) => {
   const { idMeme, idDid } = request.body;
@@ -205,6 +187,26 @@ app.post('/api/associazione', (request, response) => {
     });
 });
 
+
+//metodo post per CREARE un nuovo utente
+app.post('/api/users', (request, response) => {
+  const { name, surname, email, password, salt } = request.body;
+
+  new Promise((resolve, reject) => {
+    crypto.scrypt(password, salt, 32, (err, hashedPass) => {
+      if (err) reject(err);
+      else resolve(hashedPass.toString('hex'));
+    });
+  })
+  .then(hashedPass => {
+    return createUser(name, surname, email, hashedPass, salt);
+  })
+  .then(user => response.json(user))
+  .catch((err) => {
+    console.error(err);  // Stampa l'errore nel console del server
+    response.status(500).end();
+  });
+});
 
 
 

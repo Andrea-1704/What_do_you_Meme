@@ -5,6 +5,7 @@ import API from './API.mjs';
 import { LoginForm } from './components/AuthComponents';
 import { useState } from 'react';
 import RandomMeme from './components/RandomMeme';
+import Risposta from './components/Risposta';
 
 function HomeButtons() {
   const location = useLocation();
@@ -51,6 +52,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<LoginForm login={handleLogin} />} />
           <Route path="/play" element={<RandomMeme />} /> {/* Add the route for RandomMeme */}
+          <Route path="/risposta/:corretto" element={<Risposta />} /> {/* Add the route for Risposta */}
         </Routes>
         {message && <div className={`alert alert-${message.type}`}>{message.msg}</div>}
         <HomeButtons />
