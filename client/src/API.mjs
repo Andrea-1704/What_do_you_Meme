@@ -57,5 +57,37 @@ const fetchMeme = async () => {
   
 };
 
-const API = {logIn, logOut, getUserInfo, fetchMeme};
+const fetchDidascalieScorrette = async (memeId) => {
+  
+  const response = await fetch(SERVER_URL + `/api/meme/${memeId}/uncorrect`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch didascalie');
+    }
+    const didascalie = await response.json();
+  return didascalie;
+  
+};
+const fetchDidascalieCorrette = async (memeId) => {
+  const response = await fetch(SERVER_URL + `/api/meme/${memeId}/correct`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch didascalie');
+    }
+    const didascalie = await response.json();
+  return didascalie;
+  
+};
+
+//metodo che chiama la get all'indirizzo '/api/meme/:idM/didascalia/:idd':
+const getPunteggio = async(memeId, didId) => {
+  const response = await fetch(SERVER_URL + `/api/meme/${memeId}/didascalia/${didId}`);
+  if(!response.ok){
+    throw new Error('Failed to fetch score');
+  }
+  const punteggio=await response.text();
+  return punteggio;
+}
+
+
+
+const API = {logIn, logOut, getPunteggio, getUserInfo, fetchMeme, fetchDidascalieScorrette, fetchDidascalieCorrette};
 export default API;

@@ -1,7 +1,7 @@
 // import
 import express, {json} from 'express';
 import morgan from 'morgan';
-import { getAMeme, getDidascaliaById, createMeme, getCorrectDid, getUncorrectDid, addDidascalia, addAssociazione } from './Dao.mjs';
+import { getAMeme, getDidascaliaById, createMeme, getCorrectDid, getPunteggio, getUncorrectDid, addDidascalia, addAssociazione } from './Dao.mjs';
 import cors from 'cors'; // Aggiungi questa riga
 
 
@@ -70,6 +70,14 @@ app.get('/api/meme', (request, response) => {
   .catch(() => response.status(500).end());
 })
 
+//metodo per ottenere il punteggio della scelta:
+//GET /api/meme/:idM/didascalia/:idD
+app.get('/api/meme/:idM/didascalia/:idd', (request, response) => {
+  getPunteggio(request.params.idM, request.params.idd)
+  .then(did => response.json(did))
+  .catch(() => response.status(500).end());
+})
+
 //metodo per ottenere due tra le descrizioni 
 //corrette per il meme
 // GET /api/meme
@@ -105,6 +113,7 @@ app.use(passport.authenticate('session'));
 //un meme:
 
 app.get('/api/meme/:id/uncorrect', (request, response) => {
+  console.log("chiamata rest")
   getUncorrectDid(request.params.id)
   .then(did => response.json(did))
   .catch(() => response.status(500).end());

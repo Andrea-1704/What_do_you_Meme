@@ -21,7 +21,7 @@ export const getAMeme = () => {
         if (rows.length > 0) {
           const row = rows[0];
           const meme = new Meme(row.id, row.nameUrl);
-          //console.log(meme.path)
+          console.log(meme.path)
           resolve(meme);
         } else {
           resolve(null);  // Nessun meme trovato
@@ -66,6 +66,7 @@ export const getCorrectDid = (idMeme) => {
         } else if (rows.length < 2) {
           resolve({error: "Non ci sono abbastanza didascalie per questo meme."});
         } else {
+          console.log(rows);
           const didascalie = rows.map(row => new Didascalia(row.id, row.didascalia));
           resolve(didascalie);
         }
@@ -75,6 +76,7 @@ export const getCorrectDid = (idMeme) => {
 
   //ottieni 5 didascalie scorrette per il meme
   export const getUncorrectDid = (idMeme) => {
+    console.log("dao")
     return new Promise((resolve, reject) => {
       const sql = `SELECT Didascalia.id, Didascalia.didascalia 
                    FROM Didascalia 
