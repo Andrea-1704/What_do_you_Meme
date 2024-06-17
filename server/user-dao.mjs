@@ -8,8 +8,11 @@ const db = new sqlite.Database('db.db', (err) => {
   });
 //getUser cerca un utente nel db tramite la mail
 export const getUser = (email, password) => {
+  //onsole.log(email, password)
   return new Promise((resolve, reject) => {
+    console.log(email, password);
     const sql = 'SELECT * FROM user WHERE email = ?';
+    
     db.get(sql, [email], (err, row) => {
       if (err) { 
         reject(err); 

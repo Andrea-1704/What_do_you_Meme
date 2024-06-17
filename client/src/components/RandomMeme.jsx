@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 import React, { useState, useEffect } from 'react';
 import API from '../API.mjs';
 import { useNavigate } from 'react-router-dom';
@@ -30,7 +31,7 @@ function RandomMeme() {
           const correctData = await API.fetchDidascalieCorrette(meme.id);
           const allDidascalie = [...correctData, ...uncorrectData];
           const shuffledDidascalie = allDidascalie.sort(() => Math.random() - 0.5);
-          console.log(shuffledDidascalie);
+          //console.log(shuffledDidascalie);
           setDidascalie(shuffledDidascalie);
         } catch (err) {
           throw new Error('Failed to fetch didascalie');
@@ -55,10 +56,7 @@ function RandomMeme() {
     try {
       const score = await API.getPunteggio(meme.id, didascaliaId);
       let corretto=0;
-      console.log(score)
       const isCorrect = parseInt(score);
-
-      console.log(score)
       if (isCorrect === 5) {
         corretto=1;
         navigate(`/risposta/${corretto}`);

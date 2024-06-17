@@ -1,63 +1,82 @@
-// import
-import express, {json} from 'express';
+import express, { json } from 'express';
 import morgan from 'morgan';
-import { getAMeme, createUser, getDidascaliaById, createMeme, getCorrectDid, getPunteggio, getUncorrectDid, addDidascalia, addAssociazione } from './Dao.mjs';
-import cors from 'cors'; // Aggiungi questa riga
-import crypto from 'crypto'; // Aggiungi questa riga
-
-// Passport-related imports
+import cors from 'cors';
+import crypto from 'crypto';
 import passport from 'passport';
 import LocalStrategy from 'passport-local';
 import session from 'express-session';
 import { getUser } from './user-dao.mjs';
+import { 
+  getAMeme, createUser, getDidascaliaById, createMeme, 
+  getCorrectDid, getPunteggio, getUncorrectDid, 
+  addDidascalia, addAssociazione 
+} from './Dao.mjs';
 
 // init
 const app = express();
 const port = 3001;
 
 // middleware
-app.use(json());
-app.use(morgan('dev'));
-
-
-// middleware
 app.use(express.json());
 app.use(morgan('dev'));
-// set up and enable CORS -- UPDATED
+
 const corsOptions = {
   origin: 'http://localhost:5173',
   optionsSuccessStatus: 200,
   credentials: true
-  /*
-  credential true ci serve per andare a consentire al server di 
-  inviare cookie di sessione al client, ovvero per dire al server
-  che può accettare i cookie di un client che non è sullo 
-  stesso dominio del server
-  */
 };
 app.use(cors(corsOptions));
 
-// Passport: set up local strategy -- NEW
-passport.use(new LocalStrategy(async function verify(email, password, cb) {
-  const user = await getUser(email, password);
-  if(!user)
-    return cb(null, false, 'Incorrect username or password.');
-  //non do indizi all'utente su quale delle due credenziali è sbagliata
-    
-  return cb(null, user);
+// session middleware
+app.use(session({
+  secret: "shhhhh... it's a secret!",
+  resave: false,
+  saveUninitialized: false,
 }));
-//questo è il setup della local strategy. La local strategy è una strategia di autenticazione
-//che permette di autenticare un utente tramite username e password.
-//verify(username, password, cb) è il metodo per verificare le credenziali dell'utente.
 
-passport.serializeUser(function (user, cb) {
-  cb(null, user);
+// Passport initialization
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Passport: set up local strategy
+passport.use(new LocalStrategy(async (username, password, done) => {
+  console.log("dentro verify");
+  try {
+    const user = await getUser(username, password);
+    if (!user) {
+      return done(null, false, { message: 'Incorrect username or password.' });
+    }
+    return done(null, user);
+  } catch (err) {
+    return done(err);
+  }
+}));
+
+passport.serializeUser((user, done) => {
+  done(null, user);
 });
 
-passport.deserializeUser(function (user, cb) { // this user is id + email + name
-  return cb(null, user);
-  // if needed, we can do extra check here (e.g., double check that the user is still in the database, etc.)
+passport.deserializeUser((user, done) => {
+  return done(null, user);
 });
+
+const isLoggedIn = (req, res, next) => {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  return res.status(401).json({ error: 'Not authorized' });
+};
+
+//QUESTA E' UNA PARTE COPIABILE.
+app.use(session({
+  secret: "shhhhh... it's a secret!",
+  //uso questo secret per firmare il cookie di sessione
+  resave: false,
+  saveUninitialized: false,
+}));
+app.use(passport.authenticate('session'));
+//questo metodo lo posso copiare e serve solo per fare la sessione
+
 
 /* ROUTE */
 
@@ -85,24 +104,7 @@ app.get('/api/meme/:id/correct', (request, response) => {
   .catch(() => response.status(500).end());
 })
 
-const isLoggedIn = (req, res, next) => {
-  //quando voglio che l'utente sia autenticato per accedere a una risorsa
-  //uso questa funzione
-  if(req.isAuthenticated()) {
-    return next();
-  }
-  return res.status(401).json({error: 'Not authorized'});
-}
 
-app.use(session({
-  secret: "shhhhh... it's a secret!",
-  //uso questo secret per firmare il cookie di sessione
-  resave: false,
-  saveUninitialized: false,
-}));
-app.use(passport.authenticate('session'));
-//questo metodo lo posso copiare e serve solo per fare la sessione
-//di autenticazione con passport
 
 
 //metodo per ottenere cinque descrizioni scorrette per
@@ -124,22 +126,20 @@ app.get('/api/didascalia/:id', (request, response) => {
 
 // POST /api/sessions -- 
 //questa funzione mi consente di effettuare il login di un utente
-app.post('/api/sessions', function(req, res, next) {
+app.post('/api/sessions', (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
-    if (err)
+    if (err) {
       return next(err);
-      if (!user) {
-        // display wrong login messages
-        return res.status(401).send(info);
+    }
+    if (!user) {
+      return res.status(401).send(info);
+    }
+    req.login(user, (err) => {
+      if (err) {
+        return next(err);
       }
-      // success, perform the login
-      req.login(user, (err) => {
-        if (err)
-          return next(err);
-        
-        // req.user contains the authenticated user, we send all the user info back
-        return res.status(201).json(req.user);
-      });
+      return res.status(201).json(req.user);
+    });
   })(req, res, next);
 });
 

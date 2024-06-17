@@ -233,6 +233,7 @@ export const createMeme = (meme) => {
   return new Promise((resolve, reject) => {
     const sql = `INSERT INTO meme (nameUrl) VALUES (?)`;
     db.run(sql, [meme.path], function(err) {
+      console.log("meme.path:", meme.path);
       if (err) {
         console.error("Errore durante l'inserimento nel database:", err.message);
         reject(err);

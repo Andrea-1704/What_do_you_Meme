@@ -48,6 +48,7 @@ const logOut = async() => {
 }
 
 const fetchMeme = async () => {
+  console.log("prima chiamata")
   const response = await fetch(SERVER_URL + '/api/meme');
     if (!response.ok) {
       throw new Error('Failed to fetch meme');
@@ -58,7 +59,7 @@ const fetchMeme = async () => {
 };
 
 const fetchDidascalieScorrette = async (memeId) => {
-  
+  console.log("didascalie scorrette", memeId);
   const response = await fetch(SERVER_URL + `/api/meme/${memeId}/uncorrect`);
     if (!response.ok) {
       throw new Error('Failed to fetch didascalie');
@@ -68,6 +69,7 @@ const fetchDidascalieScorrette = async (memeId) => {
   
 };
 const fetchDidascalieCorrette = async (memeId) => {
+  console.log("didascalie corrette", memeId);
   const response = await fetch(SERVER_URL + `/api/meme/${memeId}/correct`);
     if (!response.ok) {
       throw new Error('Failed to fetch didascalie');
