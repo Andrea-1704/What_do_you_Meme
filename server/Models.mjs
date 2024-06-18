@@ -36,12 +36,10 @@ function Associazione(id, idMeme, idDid) {
     this.idDid = idDid;
 }
 
-function User(id,nome, cognome, email, password, salt) {
+function User(id, name, email, password) {
     this.id = id;
+    this.name = name;
     this.email = email;
-    this.nome = nome;
-    this.cognome = cognome;
-    this.salt=salt;
     this.password = password;
 }
   

@@ -19,53 +19,70 @@ const port = 3001;
 // middleware
 app.use(express.json());
 app.use(morgan('dev'));
-
+// set up and enable CORS -- UPDATED
 const corsOptions = {
   origin: 'http://localhost:5173',
   optionsSuccessStatus: 200,
   credentials: true
+  /*
+  credential true ci serve per andare a consentire al server di 
+  inviare cookie di sessione al client, ovvero per dire al server
+  che può accettare i cookie di un client che non è sullo 
+  stesso dominio del server. In questo modo permetti lo scambio
+  cookie tra domini diversi (cross-origin)
+  */
 };
 app.use(cors(corsOptions));
 
-// session middleware
-app.use(session({
-  secret: "shhhhh... it's a secret!",
-  resave: false,
-  saveUninitialized: false,
+// Passport: set up local strategy -- NEW
+passport.use(new LocalStrategy(async function verify(username, password, cb) {
+  console.log("verify:", username, password);
+  const user = await getUser(username, password);
+  //NOTAMOLTO BENE: QUESTO E' IL METODO CHE VIENE CHIAMATO QUANDO 
+  //VERIFICHIAMO IL LOGIN
+  //PER FARLO ABBIAMO CREATO UN FILE APPOSITO PER GEATIRE LA RICERCA
+  //DEGLI UTENTI, QUESTO FILE CI SERVE PER MANTENERE TUTTE LE INFORMAZIONI
+  //E I METODI PER PRENDERE GLI UTENTI.
+  if(!user)
+    return cb(null, false, 'Incorrect username or password.');
+  //non do indizi all'utente su quale delle due credenziali è sbagliata
+    
+  return cb(null, user);
 }));
+//questo è il setup della local strategy. La local strategy è una strategia di autenticazione
+//che permette di autenticare un utente tramite username e password.
+//verify(username, password, cb) è il metodo per verificare le credenziali dell'utente.
 
-// Passport initialization
-app.use(passport.initialize());
-app.use(passport.session());
 
-// Passport: set up local strategy
-passport.use(new LocalStrategy(async (username, password, done) => {
-  console.log("dentro verify");
-  try {
-    const user = await getUser(username, password);
-    if (!user) {
-      return done(null, false, { message: 'Incorrect username or password.' });
-    }
-    return done(null, user);
-  } catch (err) {
-    return done(err);
-  }
-}));
-
-passport.serializeUser((user, done) => {
-  done(null, user);
+//QUESTI METODI DI SERIALIZE E DESERIALIZE USER SONO METODI DI PASSPOR
+passport.serializeUser(function (user, cb) {
+  //LA FUNZIOEN NOTA CHE VUOLE L'UTENNTE E LA CALLBACK
+  //E INVOCA LA CALBACK, E SI INVOCA LA CALLBACK PASSANDO UNULL E L'UTENTE.
+   cb(null, user);
 });
 
-passport.deserializeUser((user, done) => {
-  return done(null, user);
+//LA DESERIALIZE USER SI FA OGNI VOLTA CHE VOGLIO FARE UN METODO CHE RICHIEDE CHE 
+//SIA AUTENTICATO.
+
+passport.deserializeUser(function (user, cb) { // this user is id + email + name
+  return cb(null, user);
+  // if needed, we can do extra check here (e.g., double check that the user is still in the database, etc.)
 });
 
+
+//OGNI VOLTA CHE VOGLIO CHE UN METODO SIA ACCESSIBILE SOLO DA UTENTI AUTENCIATI
+//ESEGUO QUESTA FUNZIONE DI ISLOGGEDIN
 const isLoggedIn = (req, res, next) => {
-  if (req.isAuthenticated()) {
+  //quando voglio che l'utente sia autenticato per accedere a una risorsa
+  //uso questa funzione
+
+  //QUESTO IS LOGGED IN VERIFICA SE E' TUTTO LEGGITTIMO, ALTRIMENTI RISPONDE CHE 
+  //NON SIAMO AUTORIZZATI
+  if(req.isAuthenticated()) {
     return next();
   }
-  return res.status(401).json({ error: 'Not authorized' });
-};
+  return res.status(401).json({error: 'Not authorized'});
+}
 
 //QUESTA E' UNA PARTE COPIABILE.
 app.use(session({
@@ -76,6 +93,8 @@ app.use(session({
 }));
 app.use(passport.authenticate('session'));
 //questo metodo lo posso copiare e serve solo per fare la sessione
+
+
 
 
 /* ROUTE */
@@ -124,22 +143,32 @@ app.get('/api/didascalia/:id', (request, response) => {
   .catch(() => response.status(500).end());
 })
 
-// POST /api/sessions -- 
-//questa funzione mi consente di effettuare il login di un utente
-app.post('/api/sessions', (req, res, next) => {
-  passport.authenticate('local', (err, user, info) => {
-    if (err) {
+app.post('/api/sessions', function(req, res, next) {
+  //QUESTO METODO ESEGUE L'AUTENTICAZIONE CHE ABBIAMO CONFIGURATO DENTRO 
+  //PASSPORT.USE IN ALTO
+    passport.authenticate('local', (err, user, info) => {
+    //GLI DO IL PARAMTRO LOCAL PER DIRE CHE USO LA LOCAL STRATEGY
+    //L'OGGETTO USER CHE NEL CASO IN CUI TUTTO VADA A BUON FINE VIENE RRESTITUITO
+    //CON L'UTENTE AUTENTICATO
+
+    //L'OGGETTO ERROR CHE VIENE RIEMPITO IN CASO DI ERRORE
+    
+    //INFO MANDA IL MESSAGGIO DI ERRORE CONFIGURATO PRIMA.
+    if (err)
       return next(err);
-    }
-    if (!user) {
-      return res.status(401).send(info);
-    }
-    req.login(user, (err) => {
-      if (err) {
-        return next(err);
+      if (!user) {
+        // display wrong login messages
+        return res.status(401).send(info);
       }
-      return res.status(201).json(req.user);
-    });
+      // success, perform the login
+      //SE TUTTO VA A BUON FINE CHIAMO QUESTO METODO DI PASSPORT
+      req.login(user, (err) => {
+        if (err)
+          return next(err);
+        
+        // req.user contains the authenticated user, we send all the user info back
+        return res.status(201).json(req.user);
+      });
   })(req, res, next);
 });
 
@@ -190,16 +219,16 @@ app.post('/api/associazione', (request, response) => {
 
 //metodo post per CREARE un nuovo utente
 app.post('/api/users', (request, response) => {
-  const { name, surname, email, password, salt } = request.body;
-
+  const { nome, cognome, email, password, sale } = request.body;
   new Promise((resolve, reject) => {
-    crypto.scrypt(password, salt, 32, (err, hashedPass) => {
+    crypto.scrypt(password, sale, 32, (err, hashedPass) => {
       if (err) reject(err);
       else resolve(hashedPass.toString('hex'));
     });
   })
   .then(hashedPass => {
-    return createUser(name, surname, email, hashedPass, salt);
+    console.log("hashedPass:", hashedPass)
+    return createUser(nome, cognome, email, hashedPass, sale);
   })
   .then(user => response.json(user))
   .catch((err) => {

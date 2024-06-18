@@ -36,12 +36,29 @@ function App() {
 
   const handleLogin = async (credentials) => {
     try {
+      console.log("provo almeno")
       const user = await API.logIn(credentials);
       setLoggedIn(true);
-      setMessage({ msg: `Welcome, ${user.name}!`, type: 'success' });
+      setMessage({msg: `Welcome, ${user.name}!`, type: 'success'});
+      /*
+      SE TUTTO E' ANDATO A BUON FINE SETTO LO STATO DELL'UTENTE
+      E LO STATO DEL MESSAGGIO CHE MI DICE CHE IL LOGIN E' ANDATO
+      E QUESTO MESSAGGIO E' SEMPLICEMENTE UNO STATO CHEPOI NELLA RETURN
+      MI PERMETTE DI RENDERIZZARE UN COMPONENTE CHE VISUALIZZA 
+      UAN BELLA GRAFICA CHE GESTISCE QUELLO CHE VOGLIO FARE.
+      */
       setUser(user);
-    } catch (err) {
-      setMessage({ msg: err.message, type: 'danger' });
+    }catch(err) {
+      setMessage({msg: err, type: 'danger'});
+      /*
+      NOTA BENE: QUESTO TI PERMETTE DI AVERE LA 
+      SCHERAMATA ROSSA PER DIRE CHE IL LOGIN NON 
+      E' ANDATO A BUON FINE.
+
+      NOTA CHE QUESTO MESSAGGIO E' SEMPLICEMENTE UNO STATO 
+      CHE POI NEL RETURN GESTISCO PER ANDARE A MOSTRARE 
+      IL GIUSTO MESSAGGIO DI ERRORE O DI CONFERMA.
+      */
     }
   };
 

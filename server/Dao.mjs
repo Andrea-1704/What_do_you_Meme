@@ -157,10 +157,11 @@ export const getPunteggio = (idMeme, idDid) => {
   }
   
 //crea un  utente:
-export const createUser = (name, surname, mail, hashedPassword, salt) => {
+export const createUser = (nome, cognome, mail, password, sale) => {
+  console.log(nome, cognome, mail, password, sale)
   return new Promise((resolve, reject) => {
-    const sql = `INSERT INTO user (name, surname, email, hashedPassword, salt) VALUES (?, ?, ?, ?, ?)`;
-    db.run(sql, [name, surname, mail, hashedPassword, salt], function(err) {
+    const sql = `INSERT INTO user (Nome, Cognome, email, password, sale) VALUES (?, ?, ?, ?, ?)`;
+    db.run(sql, [nome, cognome, mail, password, sale], function(err) {
       if (err)
         reject(err);
       else
