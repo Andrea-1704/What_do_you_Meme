@@ -10,6 +10,7 @@ import LogInfo from './components/LogInfo';
 import RandomMeme from './components/RandomMeme';
 import Risposta from './components/Risposta';
 import GameLoggedIn from './components/GameLoggedIn';
+import ShowResultsPage from './components/ShowResultsPage';
 
 function HomeButtons() {
   const location = useLocation();
@@ -108,6 +109,7 @@ function App() {
           <Route path="/risposta/:corretto" element={<Risposta />} /> {/* Add the route for Risposta */}
           <Route path="/game" element={<LogInfo  loggedIn={loggedIn} handleLogout={handleLogout} playTheGame={playTheGame} />} />
           <Route path="/loggedGame" element={<GameLoggedIn />} />
+          <Route path="/showResults" element={<ShowResultsPage />} />
         </Routes>
         {message && <div className={`alert alert-${message.type}`}>{message.msg}</div>}
         <HomeButtons />

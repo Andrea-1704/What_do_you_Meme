@@ -1,0 +1,79 @@
+.game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px;
+  }
+  
+  .meme-image {
+    width: 400px;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+  }
+  
+  .buttons-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .didascalia-button {
+    width: 200px;
+    padding: 10px 20px;
+    margin: 5px 0;
+    border-radius: 5px;
+    border: none;
+    background-color: #f0f0f0;
+    color: #333;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  .didascalia-button:hover {
+    background-color: #ddd;
+  }
+  
+  .didascalia-button[style*="background-color: red"] {
+    background-color: red !important;
+    color: white !important;
+  }
+  
+  .didascalia-button[style*="background-color: green"] {
+    background-color: green !important;
+    color: white !important;
+  }
+  
+  .final-results {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .result-item {
+    margin: 20px;
+  }
+  
+  .result-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .message {
+    margin-top: 20px;
+    padding: 10px 20px;
+    border-radius: 5px;
+    color: white;
+  }
+  
+  .message.success {
+    background-color: green;
+  }
+  
+  .message.danger {
+    background-color: red;
+  }
+  
