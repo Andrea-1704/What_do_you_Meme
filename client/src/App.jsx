@@ -1,11 +1,15 @@
-import './App.css';
-import { BrowserRouter as Router, Route, Routes, Link, useLocation } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { useEffect, useState } from 'react';
+import { Container, Row, Alert } from 'react-bootstrap';
+import { Routes, Route, Outlet, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Link, useLocation } from 'react-router-dom';
 import NavHeader from './components/NavHeader';
 import API from './API.mjs';
 import { LoginForm } from './components/AuthComponents';
-import { useState } from 'react';
+import LogInfo from './components/LogInfo';
 import RandomMeme from './components/RandomMeme';
 import Risposta from './components/Risposta';
+import GameLoggedIn from './components/GameLoggedIn';
 
 function HomeButtons() {
   const location = useLocation();
@@ -30,13 +34,14 @@ function HomeButtons() {
 }
 
 function App() {
+  
   const [loggedIn, setLoggedIn] = useState(false);
   const [message, setMessage] = useState('');
   const [user, setUser] = useState('');
-
-  const handleLogin = async (credentials) => {
+  
+ 
+  const handleLogin = async (credentials, navigate) => {
     try {
-      console.log("provo almeno")
       const user = await API.logIn(credentials);
       setLoggedIn(true);
       setMessage({msg: `Welcome, ${user.name}!`, type: 'success'});
@@ -48,6 +53,7 @@ function App() {
       UAN BELLA GRAFICA CHE GESTISCE QUELLO CHE VOGLIO FARE.
       */
       setUser(user);
+      navigate('/game');
     }catch(err) {
       setMessage({msg: err, type: 'danger'});
       /*
@@ -62,18 +68,50 @@ function App() {
     }
   };
 
+
+  const handleLogout = async (navigate) => {
+    
+    await API.logOut();
+    setLoggedIn(false);
+    // clean up everything
+    setMessage('Logged out successfully!');
+    navigate('/');
+  };
+
+  
+  const playTheGame = async (navigate) => {
+    
+    navigate('/loggedGame');
+  };
+ 
+
+ 
   return (
+    
     <Router>
       <NavHeader />
-      <div style={{ paddingTop: '70px' }}> {/* Evitiamo sovrapposizioni */}
+      
         <Routes>
-          <Route path="/login" element={<LoginForm login={handleLogin} />} />
+          <Route path="/login" element={
+              //nb:
+              //se l'utente è loggato lo mando alla home altrimenti gli faccio vedere il form di login
+              /*
+              chiaramente se SIAMO LOGGATI NON VEDREMO IL PULSANTE PER
+              LOGGARCI, PERO' SE IO VADO ALLA PAGINA DEL LOGIN ANDANDO A 
+              INCOLLARE IL PATH DELLA PAGINA SU CHROME VOGLIAMO GESTIRE CHE 
+              SE SONO LOGGATO MI MANDI ALLA HOME
+              */
+              
+              loggedIn ? <Navigate replace to='/' /> : <LoginForm login={handleLogin} />
+            } />
           <Route path="/play" element={<RandomMeme />} /> {/* Add the route for RandomMeme */}
           <Route path="/risposta/:corretto" element={<Risposta />} /> {/* Add the route for Risposta */}
+          <Route path="/game" element={<LogInfo  loggedIn={loggedIn} handleLogout={handleLogout} playTheGame={playTheGame} />} />
+          <Route path="/loggedGame" element={<GameLoggedIn />} />
         </Routes>
         {message && <div className={`alert alert-${message.type}`}>{message.msg}</div>}
         <HomeButtons />
-      </div>
+      
     </Router>
   );
 }

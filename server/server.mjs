@@ -9,7 +9,7 @@ import { getUser } from './user-dao.mjs';
 import { 
   getAMeme, createUser, getDidascaliaById, createMeme, 
   getCorrectDid, getPunteggio, getUncorrectDid, 
-  addDidascalia, addAssociazione 
+  addDidascalia, addAssociazione , getHistory
 } from './Dao.mjs';
 
 // init
@@ -84,7 +84,7 @@ const isLoggedIn = (req, res, next) => {
   return res.status(401).json({error: 'Not authorized'});
 }
 
-//QUESTA E' UNA PARTE COPIABILE.
+
 app.use(session({
   secret: "shhhhh... it's a secret!",
   //uso questo secret per firmare il cookie di sessione
@@ -115,6 +115,9 @@ app.get('/api/meme/:idM/didascalia/:idd', (request, response) => {
   .catch(() => response.status(500).end());
 })
 
+//metodo per ottenere lo storico dei punteggi dell'utente:
+//GET /api/user/
+
 //metodo per ottenere due descrizioni corrette per il meme
 // GET /api/meme
 app.get('/api/meme/:id/correct', (request, response) => {
@@ -123,7 +126,13 @@ app.get('/api/meme/:id/correct', (request, response) => {
   .catch(() => response.status(500).end());
 })
 
-
+//metodo per ottenere la storia dell'utente delle precedenti risposte
+app.get('/api/history', (request, response) => {
+  console.log("chiamata rest history", request.user.id)
+  getHistory(request.user.id)
+  .then(history => response.json(history))
+  .catch(() => response.status(500).end());
+})
 
 
 //metodo per ottenere cinque descrizioni scorrette per

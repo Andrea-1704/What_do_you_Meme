@@ -26,6 +26,26 @@ const logIn = async (credentials) => {
 };
 
 
+const getHistory = async (credentials) => {
+  const response = await fetch(SERVER_URL + '/api/history', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify(credentials),
+  });
+  if(response.ok) {
+    const storia = await response.json();
+    return storia;
+  }
+  else {
+    const errDetails = await response.text();
+    throw errDetails;
+  }
+};
+
+
 const getUserInfo = async () => {
   const response = await fetch(SERVER_URL + '/api/sessions/current', {
     credentials: 'include',
@@ -91,5 +111,5 @@ const getPunteggio = async(memeId, didId) => {
 
 
 
-const API = {logIn, logOut, getPunteggio, getUserInfo, fetchMeme, fetchDidascalieScorrette, fetchDidascalieCorrette};
+const API = {logIn, logOut, getHistory,getPunteggio, getUserInfo, fetchMeme, fetchDidascalieScorrette, fetchDidascalieCorrette};
 export default API;

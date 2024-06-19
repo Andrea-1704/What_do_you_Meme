@@ -1,17 +1,20 @@
 import { useState } from 'react';
 import { Form, Button, Row, Col } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 function LoginForm(props) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  
+  const navigate = useNavigate();
   const handleSubmit = (event) => {
       event.preventDefault();
       
       const credentials = { username, password };
       
-      props.login(credentials);
+      // eslint-disable-next-line react/prop-types
+      props.login(credentials, navigate);
+
+      
   };
 
   return (
@@ -36,4 +39,18 @@ function LoginForm(props) {
   )
 };
 
-export { LoginForm };
+
+function LogoutButton(props) {
+  return(
+    // eslint-disable-next-line react/prop-types
+    <Button variant='outline-light' onClick={props.logout}>Logout</Button>
+  )
+}
+
+function GetPersonasButton(props) {
+  return(
+    // eslint-disable-next-line react/prop-types
+    <Button variant='outline-light' onClick={props.getUserInfo}>User</Button>
+  )
+}
+export { LoginForm, LogoutButton, GetPersonasButton };

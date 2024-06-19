@@ -21,7 +21,6 @@
 .nav-header {
   background-color: greenyellow;
   color: white;
-  padding: 15px;
   position: fixed;
   top: 0;
   width: 100%;
@@ -29,8 +28,34 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: space-between; /* content alignment */
-  align-items: center; /* content vertically */
+  align-items: center; 
 }
+
+/* styles.css */
+/* styles.css */
+.logout-button {
+  background-color: red;
+  color: white;
+  border: 1px solid darkred;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 1rem;
+  border-radius: 5px;
+  margin: 5px;
+}
+
+.play-button {
+  background-color: green;
+  color: white;
+  border: 1px solid darkgreen;
+  padding: 15px 30px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  border-radius: 5px;
+  margin: 5px;
+}
+
+
 
 
 @keyframes logo-spin {
