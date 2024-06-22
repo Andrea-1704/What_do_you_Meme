@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import API from '../API.mjs';
 import { useNavigate } from 'react-router-dom';
 import './GameLoggedIn.css';  // Assicurati di creare un file CSS separato
@@ -16,6 +16,9 @@ function GameLoggedIn() {
   const [didascalie1, setDidascalie1] = useState([]);
   const [didascalie2, setDidascalie2] = useState([]);
   const [didascalie3, setDidascalie3] = useState([]);
+  const [didCorrette1, setDidCorrette1] = useState([]);
+  const [didCorrette2, setDidCorrette2] = useState([]);
+  const [didCorrette3, setDidCorrette3] = useState([]);
   const [scelta1, setScelta1] = useState(null); 
   const [scelta2, setScelta2] = useState(null); 
   const [scelta3, setScelta3] = useState(null); 
@@ -23,6 +26,7 @@ function GameLoggedIn() {
   const [timeRemaining, setTimeRemaining] = useState(30); 
   const [riprova, setRiprova] = useState(0);
   const [message, setMessage] = useState('');
+  const [idRounds, setIdRound]=useState([]);
 
   const navigate = useNavigate();
   
@@ -59,7 +63,7 @@ function GameLoggedIn() {
       }
     };
     fetchMeme();
-  }, [punteggio1, punteggio2, punteggio3, riprova]); 
+  }, [scelta1, scelta2, scelta3, riprova]); 
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -72,24 +76,48 @@ function GameLoggedIn() {
     if (timeRemaining === 1) {
       clearInterval(intervalId);
       //cambio il punteggio:
-      if(round===1) setPunteggio1(0);
+      if(round===1) {
+        setPunteggio1(0);
+      }
       if(round===2) setPunteggio2(0);
       if(round===3) setPunteggio3(0);
       if (round < 3) {
         setRound(round + 1);
         setTimeRemaining(30);
-      }else{
-        setRound(3);
       }
       setMessage({ msg: `Tempo scaduto!`, type: 'danger' });
     }
-
 
     return () => {
       clearTimeout(timeoutId);
       clearInterval(intervalId);
     };
   }, [timeRemaining]);
+
+
+
+  useEffect(() => {
+    const fetchDataAndSendGame = async () => {
+      try {
+        if (meme3 && scelta3) {
+
+          const round1 = await API.sendRound(meme1.id, scelta1, didCorrette1[0], didCorrette1[1]);
+          const round2 = await API.sendRound(meme2.id, scelta2, didCorrette2[0], didCorrette2[1]);
+          const round3 = await API.sendRound(meme3.id, scelta3, didCorrette3[0], didCorrette3[1]);
+          
+          // Una volta che tutte le promesse sono risolte, invia i dati del gioco
+          await API.sendGame(round1.associazioneId, round2.associazioneId, round3.associazioneId);
+          // Puoi aggiungere ulteriori log o azioni qui se necessario
+          console.log("Game data sent successfully");
+        }
+      } catch (err) {
+        console.error("Error sending game data", err);
+      }
+    };
+  
+    fetchDataAndSendGame();
+  }, [scelta3]);
+  
 
   useEffect(() => {
     const fetchDidascalie = async () => {
@@ -98,6 +126,7 @@ function GameLoggedIn() {
           try {
             const uncorrectData = await API.fetchDidascalieScorrette(meme1.id);
             const correctData = await API.fetchDidascalieCorrette(meme1.id);
+            setDidCorrette1([correctData[0].id, correctData[1].id]);
             const allDidascalie = [...correctData, ...uncorrectData];
             const shuffledDidascalie = allDidascalie.sort(() => Math.random() - 0.5);
             setDidascalie1(shuffledDidascalie);
@@ -114,6 +143,7 @@ function GameLoggedIn() {
           try {
             const uncorrectData = await API.fetchDidascalieScorrette(meme2.id);
             const correctData = await API.fetchDidascalieCorrette(meme2.id);
+            await setDidCorrette2([correctData[0].id, correctData[1].id]);
             const allDidascalie = [...correctData, ...uncorrectData];
             const shuffledDidascalie = allDidascalie.sort(() => Math.random() - 0.5);
             setDidascalie2(shuffledDidascalie);
@@ -130,6 +160,7 @@ function GameLoggedIn() {
           try {
             const uncorrectData = await API.fetchDidascalieScorrette(meme3.id);
             const correctData = await API.fetchDidascalieCorrette(meme3.id);
+            setDidCorrette3([correctData[0].id, correctData[1].id]);
             const allDidascalie = [...correctData, ...uncorrectData];
             const shuffledDidascalie = allDidascalie.sort(() => Math.random() - 0.5);
             setDidascalie3(shuffledDidascalie);
@@ -176,7 +207,7 @@ function GameLoggedIn() {
         const score = await API.getPunteggio(meme1.id, didascaliaId);
         const isCorrect = parseInt(score);
         setScelta1(didascaliaId);
-        setPunteggio1(isCorrect);
+        //setPunteggio1(isCorrect);
         if (isCorrect === 5) {
           setMessage({ msg: `COMPLIMENTI; E' CORRETTO`, type: 'success' });
         } else {
@@ -187,7 +218,6 @@ function GameLoggedIn() {
         const score = await API.getPunteggio(meme2.id, didascaliaId);
         const isCorrect = parseInt(score);
         setScelta2(didascaliaId);
-        setPunteggio2(isCorrect);
         if (isCorrect === 5) {
           setMessage({ msg: `COMPLIMENTI; E' CORRETTO`, type: 'success' });
         } else {
@@ -198,7 +228,6 @@ function GameLoggedIn() {
         const score = await API.getPunteggio(meme3.id, didascaliaId);
         const isCorrect = parseInt(score);
         setScelta3(didascaliaId);
-        setPunteggio3(isCorrect);
         if (isCorrect === 5) {
           setMessage({ msg: `COMPLIMENTI; E' CORRETTO`, type: 'success' });
         } else {

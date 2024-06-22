@@ -4,12 +4,14 @@ import cors from 'cors';
 import crypto from 'crypto';
 import passport from 'passport';
 import LocalStrategy from 'passport-local';
+import {check, validationResult} from 'express-validator';
 import session from 'express-session';
 import { getUser } from './user-dao.mjs';
 import { 
   getAMeme, createUser, getDidascaliaById, createMeme, 
   getCorrectDid, getPunteggio, getUncorrectDid, 
-  addDidascalia, addAssociazione , getHistory
+  addDidascalia, addAssociazione , getHistory,
+  addRound, addGame
 } from './Dao.mjs';
 
 // init
@@ -225,6 +227,44 @@ app.post('/api/associazione', (request, response) => {
     });
 });
 
+
+app.post('/api/round', isLoggedIn, [
+  check('idMeme').isNumeric(),
+  check('idDid').isNumeric(),
+], async (request, response) => {
+
+  const { idMeme, idDid, idDidCor1, idDidCor2 } = request.body;
+  try {
+    const punteggio = await getPunteggio(idMeme, idDid);
+    const associazioneId = await addRound(idMeme, idDid, idDidCor1, idDidCor2, punteggio);
+    response.json({ associazioneId });
+  } catch (err) {
+    console.error("Errore nell'aggiungere l'associazione:", err.message);
+    response.status(500).end();
+  }
+});
+
+//API per registrare un game:
+app.post('/api/game', isLoggedIn, [
+  check('idR1').isNumeric(),
+  check('idr2').isNumeric(),
+  check('idr3').isNumeric(),
+],
+async (request, response) => {
+    const idUser=request.user.id;
+    const { idR1, idR2, idR3 } = request.body;
+    console.log("tutti i dati dentro server" , idUser, idR1, idR2, idR3)
+    addGame(idUser, idR1, idR2, idR3)
+      .then(associazioneId => response.json({ associazioneId }))
+      .catch((err) => {
+        console.error("Errore nell'aggiungere l'associazione:", err.message);
+        response.status(500).end();
+      });
+    
+  });
+
+//api per ottenere il punteggio di un round dato il suo id:
+app.get('/api/punteggio/:idRound', (request, response) => {})
 
 //metodo post per CREARE un nuovo utente
 app.post('/api/users', (request, response) => {

@@ -116,12 +116,17 @@ export const punteggioTotale = (idR1, idR2, idR3) => {
 export const addGame = async (idUser, idR1, idR2, idR3) => {
   try {
     // Calcola il punteggio totale
-    const punteggioTotale = await punteggioTotale(idR1, idR2, idR3);
-    
+    //const punteggioTotale = await punteggioTotale(idR1, idR2, idR3);
+    const punteggioR1= await getPunteggioRound(idR1);
+    const punteggioR2= await getPunteggioRound(idR2);
+    const punteggioR3= await getPunteggioRound(idR3);
+    console.log("punteggi", punteggioR1.punteggio, punteggioR2.punteggio, punteggioR3.punteggio)
+    const punteggioTotale=punteggioR1.punteggio+punteggioR2.punteggio+punteggioR3.punteggio;
+    const currentDate = new Date().toISOString(); // Ritorna la data in formato ISO 8601
     // Inserisci i dati nel database
     return new Promise((resolve, reject) => {
-      const sql = `INSERT INTO game (idUser, idR1, idR2, idR3, punteggioTotale, date) VALUES (?, ?, ?, ?, ?, datetime('now'))`;
-      db.run(sql, [idUser, idR1, idR2, idR3, punteggioTotale], function(err) {
+      const sql = `INSERT INTO game (idR1, idR2, idR3, date, idUser, punteggioTotale) VALUES (?, ?, ?, ?, ?, ?)`;
+      db.run(sql, [idR1, idR2, idR3, currentDate, idUser, punteggioTotale ], function(err) {
         if (err) {
           reject(err);
         } else {
@@ -170,11 +175,11 @@ export const createUser = (nome, cognome, mail, password, sale) => {
   });
 }
 
-//registra un round
+
 export const addRound = (idMeme, idDidS, idDidC1, idDidC2, punteggio) => {
   return new Promise((resolve, reject) => {
-    const sql = `INSERT INTO round (idMeme, idDid, punteggio) VALUES (?, ?, ?)`;
-    db.run(sql, [idMeme, idDidS, idDidC1, idDidC2, punteggio], function(err) {
+    const sql = `INSERT INTO round (idMeme, idDIDScelta, punteggio, idDidC1, idDidC2) VALUES (?, ?, ?, ?, ?)`;
+    db.run(sql, [idMeme, idDidS, punteggio, idDidC1, idDidC2], function(err) {
       if (err)
         reject(err);
       else
@@ -206,7 +211,7 @@ export const getHistory = (idUser) => {
       if (err)
         reject(err);
       else {
-        const games = rows.map(row => new Game(row.id, row.idUser, row.idR1, row.idR2, row.idR3, row.punteggioTotale, row.date));
+        const games = rows.map(row => new Game(row.id, row.idUser, row.IDR1, row.IDR2, row.IDR3, row.punteggioTotale, row.date));
         resolve(games);
       }
     });
@@ -278,5 +283,18 @@ export const addAssociazione = (idMeme, idDid) => {
     });
   });
 };
+
+export const getPunteggioRound = (idR) =>{
+  return new Promise((resolve, reject) => {
+    const sql = `SELECT punteggio FROM round WHERE id = ?`;
+    db.get(sql, [idR], (err, row) => {
+      if (err)
+        reject(err);
+      else {
+        resolve(row);
+      }
+    });
+  });
+}
 
 

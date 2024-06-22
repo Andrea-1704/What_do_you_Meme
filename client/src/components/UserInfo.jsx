@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Table } from 'react-bootstrap';
 import API from '../API.mjs';
+import dayjs from 'dayjs';
 
 function UserInfo() {
   const [userInfo, setUserInfo] = useState(null);
-  const [history, setHistory] = useState([]);
+  const [history, setHistory] = useState([]); 
 
   const getUserInfo = async () => {
     return await API.getUserInfo();
@@ -12,6 +13,7 @@ function UserInfo() {
 
   const getHistory = async () => {
     return await API.getHistory();
+
   };
 
   useEffect(() => {
@@ -21,6 +23,8 @@ function UserInfo() {
         const history = await getHistory();
         setUserInfo(user);
         setHistory(history);
+        console.log("user", user);
+        console.log("history", history);
       } catch (error) {
         console.error("Failed to fetch user info:", error);
       }
@@ -37,7 +41,7 @@ function UserInfo() {
     return history.map((game) => (
       <React.Fragment key={game.id}>
         <tr>
-          <td colSpan="4" className="game-header">Game ID: {game.id} - Date: {game.date.format('YYYY-MM-DD')}</td>
+          <td colSpan="4" className="game-header">Game ID: {game.id} - Date: {dayjs(game.date).format('YYYY-MM-DD')}</td>
         </tr>
         {[game.idR1, game.idR2, game.idR3].map((round, index) => (
           <tr key={round.id}>

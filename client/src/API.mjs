@@ -110,6 +110,42 @@ const getPunteggio = async(memeId, didId) => {
 }
 
 
+const sendRound = async (meme, didascalia, idCor1, idCor2) => {
+  
+  const response = await fetch(SERVER_URL + '/api/round', {
+    method: 'POST',
+    credentials: 'include',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({idMeme: meme, idDid: didascalia, idDidCor1: idCor1, idDidCor2: idCor2}),
+  });
+  
+  const idRound = await response.json();
+  if (response.ok) {
+    return idRound;
+  } else {
+    throw idRound;  
+  }
+};
 
-const API = {logIn, logOut, getHistory,getPunteggio, getUserInfo, fetchMeme, fetchDidascalieScorrette, fetchDidascalieCorrette};
+const sendGame = async (idR1, idR2, idR3) => {
+  console.log("dati ricevuti dentro api", idR1, idR2, idR3)
+  const response = await fetch(SERVER_URL + '/api/game', {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({idR1: idR1, idR2: idR2, idR3: idR3}),
+  });
+  const idGame = await response.json();
+  if (response.ok) {
+    return idGame;
+  } else {
+    throw idGame;  
+  }
+};
+
+
+
+const API = {logIn, logOut, getHistory,getPunteggio, getUserInfo, fetchMeme, fetchDidascalieScorrette, fetchDidascalieCorrette, sendRound, sendGame};
 export default API;
