@@ -31,6 +31,21 @@ export const getAMeme = () => {
   });
 };
 
+// get a meme by id
+// export const getMemeById = (id) => {
+//   return new Promise((resolve, reject) => {
+//     const sql = `SELECT * FROM meme WHERE id = ?`;
+//     db.get(sql, [id], (err, row) => {
+//       if (err)
+//         reject(err);
+//       else {
+//         const meme = new Meme(row.id, row.nameUrl);
+//         resolve(meme);
+//       }
+//     });
+//   });
+// }
+
 export const getDidascaliaById = (id) => {
   return new Promise((resolve, reject) => {
     const sql = `SELECT * FROM didascalia WHERE id = ?`;
@@ -218,6 +233,21 @@ export const getHistory = (idUser) => {
   });
 }
 
+//get a meme by id
+export const getMemeById = (id) => {
+  return new Promise((resolve, reject) => {
+    const sql = `SELECT * FROM meme WHERE id = ?`;
+    db.get(sql, [id], (err, row) => {
+      if (err)
+        reject(err);
+      else {
+        const meme = new Meme(row.id, row.nameUrl);
+        resolve(meme);
+      }
+    });
+  });
+}
+
 //get round by id
 export const getRoundById = (id) => {
   return new Promise((resolve, reject) => {
@@ -226,7 +256,7 @@ export const getRoundById = (id) => {
       if (err)
         reject(err);
       else {
-        const round = new Round(row.id, row.idMeme, row.idDidScelta, row.punteggio, row.idDidC1, row.idDidC2);
+        const round = new Round(row.id, row.idMeme, row.idDIDScelta, row.punteggio, row.idDidC1, row.idDidC2);
         resolve(round);
       }
     });

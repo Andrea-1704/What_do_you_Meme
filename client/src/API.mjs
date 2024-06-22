@@ -68,7 +68,6 @@ const logOut = async() => {
 }
 
 const fetchMeme = async () => {
-  console.log("prima chiamata")
   const response = await fetch(SERVER_URL + '/api/meme');
     if (!response.ok) {
       throw new Error('Failed to fetch meme');
@@ -145,7 +144,37 @@ const sendGame = async (idR1, idR2, idR3) => {
   }
 };
 
+//metodo che chiama la get all'indirizzo '/api/round/:id':
+const getRoundById = async (id) => {
+  const response = await fetch(SERVER_URL + `/api/round/${id}`);
+  if(!response.ok){
+    throw new Error('Failed to fetch round');
+  }
+  const round=await response.json();
+  return round;
+}
+
+//metodo per ottenere un meme dato il suo id:
+const getMemeById = async (id) => {
+  const response = await fetch(SERVER_URL + `/api/meme/${id}`);
+  if(!response.ok){
+    throw new Error('Failed to fetch meme');
+  }
+  const meme=await response.json();
+  return meme;
+}
+
+//metodo per ottenere una didascalia dato il suo id:
+const getDidascaliaById = async (id) => {
+  const response = await fetch(SERVER_URL + `/api/didascalia/${id}`);
+  if(!response.ok){
+    throw new Error('Failed to fetch didascalia');
+  }
+  const didascalia=await response.json();
+  return didascalia;
+}
 
 
-const API = {logIn, logOut, getHistory,getPunteggio, getUserInfo, fetchMeme, fetchDidascalieScorrette, fetchDidascalieCorrette, sendRound, sendGame};
+
+const API = {logIn, logOut, getHistory,getPunteggio, getUserInfo, fetchMeme, fetchDidascalieScorrette, fetchDidascalieCorrette, sendRound, sendGame, getRoundById, getMemeById, getDidascaliaById};
 export default API;

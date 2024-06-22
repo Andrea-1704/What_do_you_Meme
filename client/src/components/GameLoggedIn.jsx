@@ -210,7 +210,9 @@ function GameLoggedIn() {
         //setPunteggio1(isCorrect);
         if (isCorrect === 5) {
           setMessage({ msg: `COMPLIMENTI; E' CORRETTO`, type: 'success' });
+          setPunteggio1(5);
         } else {
+          setPunteggio1(0);
           setMessage({ msg: `HAI SBAGLIATO; RITENTA!`, type: 'danger' });
         }
       }
@@ -219,8 +221,10 @@ function GameLoggedIn() {
         const isCorrect = parseInt(score);
         setScelta2(didascaliaId);
         if (isCorrect === 5) {
+          setPunteggio2(5);
           setMessage({ msg: `COMPLIMENTI; E' CORRETTO`, type: 'success' });
         } else {
+          setPunteggio2(0);
           setMessage({ msg: `HAI SBAGLIATO; RITENTA!`, type: 'danger' });
         }
       }
@@ -229,8 +233,10 @@ function GameLoggedIn() {
         const isCorrect = parseInt(score);
         setScelta3(didascaliaId);
         if (isCorrect === 5) {
+          setPunteggio3(5);
           setMessage({ msg: `COMPLIMENTI; E' CORRETTO`, type: 'success' });
         } else {
+          setPunteggio3(0);
           setMessage({ msg: `HAI SBAGLIATO; RITENTA!`, type: 'danger' });
         }
       }
@@ -242,9 +248,37 @@ function GameLoggedIn() {
   const renderFinalResults = () => {
     const memes = [meme1, meme2, meme3];
     const didascalie = [didascalie1, didascalie2, didascalie3];
-    const scelte = [scelta1, scelta2, scelta3];
-    const punteggi = [punteggio1, punteggio2, punteggio3];
+    //const scelte = [scelta1, scelta2, scelta3];
+    //const punteggi = [punteggio1, punteggio2, punteggio3];
 
+    //tasto per giocare ancora:
+    const handlePlayAgain = () => {
+      setRound(0);
+      setMeme1(null);
+      setMeme2(null);
+      setMeme3(null);
+      setPunteggio1(-1);
+      setPunteggio2(-1);
+      setPunteggio3(-1);
+      setDidascalie1([]);
+      setDidascalie2([]);
+      setDidascalie3([]);
+      setDidCorrette1([]);
+      setDidCorrette2([]);
+      setDidCorrette3([]);
+      setScelta1(null);
+      setScelta2(null);
+      setScelta3(null);
+      setDidascalieAttuali([]);
+      setTimeRemaining(30);
+      setRiprova(0);
+      setMessage('');
+    };
+
+    const handleUserInfo = () => {
+      navigate('/game');
+    }
+  
     return (
       <div className="final-results">
         {memes.map((meme, index) => (
@@ -262,11 +296,21 @@ function GameLoggedIn() {
             </div>
           </div>
         ))}
+        <div className="final-buttons">
+          <button 
+            style={{ backgroundColor: 'blue', color: 'white' }}
+            onClick={handlePlayAgain}
+            >Play again</button>
+          <button 
+            style={{ backgroundColor: 'green', color: 'white' }}
+            onClick={handleUserInfo}
+            >User information</button>
+      </div>
       </div>
     );
   };
 
-  if (round >= 3&&punteggio3!=-1) {
+  if (round >= 3&&scelta3) {
     return (
       <div className="game-container">
         {renderFinalResults()}

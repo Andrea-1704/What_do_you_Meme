@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 
 function UserInfo() {
   const [userInfo, setUserInfo] = useState(null);
-  const [history, setHistory] = useState([]); 
+  const [history, setHistory] = useState([]);
 
   const getUserInfo = async () => {
     return await API.getUserInfo();
@@ -13,18 +13,53 @@ function UserInfo() {
 
   const getHistory = async () => {
     return await API.getHistory();
+    
+  };
 
+  const getRoundById = async (id) => {
+    return await API.getRoundById(id);
+  };
+
+  const getMemeById = async (id) => {
+    return await API.getMemeById(id);
   };
 
   useEffect(() => {
+    //console.log("history", history);
     const fetchUserInfo = async () => {
       try {
         const user = await getUserInfo();
         const history = await getHistory();
+
+        // Get details for each round in each game
+        const historyWithRounds = await Promise.all(history.map(async (game) => {
+          const rounds = await Promise.all([
+            getRoundById(game.idR1),
+            getRoundById(game.idR2),
+            getRoundById(game.idR3),
+          ]);
+
+          //console.log("rounds", rounds);
+          // Get meme details for each round
+          const roundsWithMemes = await Promise.all(rounds.map(async (round) => {
+            const meme = await getMemeById(round.idMeme);
+            const didascaliaScelta = await API.getDidascaliaById(round.idDidScelta);
+            const didascaliaC1 = await API.getDidascaliaById(round.idDidC1);
+            const didascaliaC2 = await API.getDidascaliaById(round.idDidC2);
+            //console.log("didascaliaScelta", didascaliaScelta);
+            return { ...round, meme, didascaliaScelta, didascaliaC1, didascaliaC2 };
+          }));
+
+          //console.log("roundsWithMemes", roundsWithMemes);
+
+          return { ...game, rounds: roundsWithMemes };
+        }));
+
         setUserInfo(user);
-        setHistory(history);
-        console.log("user", user);
-        console.log("history", history);
+        setHistory(historyWithRounds);
+        
+        //console.log("user", user);
+        console.log("history", historyWithRounds);
       } catch (error) {
         console.error("Failed to fetch user info:", error);
       }
@@ -38,18 +73,22 @@ function UserInfo() {
   }
 
   const renderGameHistory = () => {
+    
     return history.map((game) => (
+      
       <React.Fragment key={game.id}>
         <tr>
           <td colSpan="4" className="game-header">Game ID: {game.id} - Date: {dayjs(game.date).format('YYYY-MM-DD')}</td>
         </tr>
-        {[game.idR1, game.idR2, game.idR3].map((round, index) => (
+        {game.rounds.map((round) => (
           <tr key={round.id}>
             <td>
-              <img src={`/path/to/memes/${round.idMeme}.jpg`} alt={`Meme ${round.idMeme}`} style={{ width: '100px' }} />
+              
+              <img src={`${round.meme.path}`} alt={`Meme ${round.idMeme}`} style={{ width: '100px' }} />
             </td>
-            <td>{round.idDidScelta}</td>
-            <td>{round.idDidC1}</td>
+            <td>{round.didascaliaScelta}</td>
+            <td>{round.didascaliaC1}</td>
+            <td>{round.didascaliaC2}</td>
             <td>{round.idPunteggio}</td>
           </tr>
         ))}

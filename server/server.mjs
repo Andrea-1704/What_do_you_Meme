@@ -11,7 +11,7 @@ import {
   getAMeme, createUser, getDidascaliaById, createMeme, 
   getCorrectDid, getPunteggio, getUncorrectDid, 
   addDidascalia, addAssociazione , getHistory,
-  addRound, addGame
+  addRound, addGame, getRoundById, getMemeById
 } from './Dao.mjs';
 
 // init
@@ -117,6 +117,22 @@ app.get('/api/meme/:idM/didascalia/:idd', (request, response) => {
   .catch(() => response.status(500).end());
 })
 
+//metodo per ottenere un round dato il suo id:
+//GET /api/round/:id
+app.get('/api/round/:id', (request, response) => {
+  getRoundById(request.params.id)
+  .then(round => response.json(round))
+  .catch(() => response.status(500).end());
+})
+
+//metodo per ottenere un meme dato il suo id:
+//GET /api/meme/:id
+app.get('/api/meme/:id', (request, response) => {
+  getMemeById(request.params.id)
+  .then(meme => response.json(meme))
+  .catch(() => response.status(500).end());
+})
+
 //metodo per ottenere lo storico dei punteggi dell'utente:
 //GET /api/user/
 
@@ -130,7 +146,7 @@ app.get('/api/meme/:id/correct', (request, response) => {
 
 //metodo per ottenere la storia dell'utente delle precedenti risposte
 app.get('/api/history', (request, response) => {
-  console.log("chiamata rest history", request.user.id)
+  //console.log("chiamata rest history", request.user.id)
   getHistory(request.user.id)
   .then(history => response.json(history))
   .catch(() => response.status(500).end());
