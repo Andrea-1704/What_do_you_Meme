@@ -1,8 +1,7 @@
 .game-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 20px;
+  background-color: beige; /* Colore di sfondo per il contenitore principale */
+  padding: 20px;
+  flex-grow: 1; 
   }
   
   .meme-image {
@@ -50,6 +49,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    
   }
   
   .result-item {
@@ -76,4 +76,7 @@
   .message.danger {
     background-color: red;
   }
+
+
+  
   

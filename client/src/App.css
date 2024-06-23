@@ -1,9 +1,8 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  height: 100vh;
+  width: 100vw;
 }
+
 
 .logo {
   height: 6em;
@@ -12,23 +11,16 @@
   transition: filter 300ms;
 }
 .logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+  filter: drop-shadow(0 0 2em #004d7a80);
 }
 .logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+  filter: drop-shadow(0 0 2em #32a1c0aa);
 }
 
 .nav-header {
-  background-color: greenyellow;
-  color: white;
-  position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 1000;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  display: flex;
-  justify-content: space-between; /* content alignment */
-  align-items: center; 
+  background-color: rgb(6, 50, 72); /* Colore di sfondo per il debug */
+  padding: 10px;
+  color: beige;
 }
 
 /* styles.css */

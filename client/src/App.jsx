@@ -10,13 +10,10 @@ import LogInfo from './components/LogInfo';
 import RandomMeme from './components/RandomMeme';
 import Risposta from './components/Risposta';
 import GameLoggedIn from './components/GameLoggedIn';
-import ShowResultsPage from './components/ShowResultsPage';
 
 function HomeButtons() {
   const location = useLocation();
 
-  // these are the buttons that will be displayed on the home page
-  // these will be shown only if the path is '/'
   if (location.pathname === '/') {
     return (
       <div>
@@ -87,13 +84,57 @@ function App() {
  
 
  
-  return (
+  // return (
     
-    <Router>
-      <NavHeader />
+  //   <Router>
+  //     <NavHeader />
       
-        <Routes>
-          <Route path="/login" element={
+  //       <Routes>
+  //         <Route path="/login" element={
+  //             //nb:
+  //             //se l'utente è loggato lo mando alla home altrimenti gli faccio vedere il form di login
+  //             /*
+  //             chiaramente se SIAMO LOGGATI NON VEDREMO IL PULSANTE PER
+  //             LOGGARCI, PERO' SE IO VADO ALLA PAGINA DEL LOGIN ANDANDO A 
+  //             INCOLLARE IL PATH DELLA PAGINA SU CHROME VOGLIAMO GESTIRE CHE 
+  //             SE SONO LOGGATO MI MANDI ALLA HOME
+  //             */
+              
+  //             loggedIn ? <Navigate replace to='/' /> : <LoginForm login={handleLogin} />
+  //           } />
+  //         <Route path="/play" element={<RandomMeme />} /> {/* Add the route for RandomMeme */}
+  //         <Route path="/risposta/:corretto" element={<Risposta />} /> {/* Add the route for Risposta */}
+  //         <Route path="/game" element={<LogInfo  loggedIn={loggedIn} handleLogout={handleLogout} playTheGame={playTheGame} />} />
+  //         <Route path="/loggedGame" element={<GameLoggedIn />} />
+  //         <Route path="/showResults" element={<ShowResultsPage />} />
+  //       </Routes>
+  //       {message && <div className={`alert alert-${message.type}`}>{message.msg}</div>}
+  //       <HomeButtons />
+      
+  //   </Router>
+  // );
+
+
+  
+  return (
+   <Router>
+    <Routes>
+      <Route element={<>
+        <NavHeader />
+        <Container fluid className='mt-3'>
+          {/*questo mi mostra l'eventuale messaggio di errore
+          o di successo\*/}
+          {message && <Row>
+            <Alert variant={message.type} onClose={() => setMessage('')} dismissible>{message.msg}</Alert>
+          </Row> }
+          <Outlet/>
+        </Container>
+        </>
+      }>
+        <Route index element={
+          <HomeButtons />
+        } />
+        <Route path="/login" element={
               //nb:
               //se l'utente è loggato lo mando alla home altrimenti gli faccio vedere il form di login
               /*
@@ -109,13 +150,13 @@ function App() {
           <Route path="/risposta/:corretto" element={<Risposta />} /> {/* Add the route for Risposta */}
           <Route path="/game" element={<LogInfo  loggedIn={loggedIn} handleLogout={handleLogout} playTheGame={playTheGame} />} />
           <Route path="/loggedGame" element={<GameLoggedIn />} />
-          <Route path="/showResults" element={<ShowResultsPage />} />
-        </Routes>
-        {message && <div className={`alert alert-${message.type}`}>{message.msg}</div>}
-        <HomeButtons />
-      
-    </Router>
+          
+      </Route>
+    </Routes>
+    </Router> 
   );
+  
+
 }
 
 export default App;
