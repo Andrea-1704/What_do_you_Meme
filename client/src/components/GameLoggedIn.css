@@ -1,5 +1,19 @@
+
+/* styles.css */
+.compact-cell {
+  padding: 5px; /* Riduce il padding interno */
+  margin: 0;    /* Elimina il margine */
+  vertical-align: middle; /* Centra verticalmente il contenuto delle celle */
+}
+
+.game-header {
+  padding: 10px; /* Puoi regolare il padding come preferisci */
+  font-weight: bold;
+}
+
+
 .game-container {
-  background-color: beige; /* Colore di sfondo per il contenitore principale */
+  background-color: white; /* Colore di sfondo per il contenitore principale */
   padding: 20px;
   flex-grow: 1; 
   }

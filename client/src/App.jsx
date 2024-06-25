@@ -83,36 +83,7 @@ function App() {
   };
  
 
- 
-  // return (
-    
-  //   <Router>
-  //     <NavHeader />
-      
-  //       <Routes>
-  //         <Route path="/login" element={
-  //             //nb:
-  //             //se l'utente è loggato lo mando alla home altrimenti gli faccio vedere il form di login
-  //             /*
-  //             chiaramente se SIAMO LOGGATI NON VEDREMO IL PULSANTE PER
-  //             LOGGARCI, PERO' SE IO VADO ALLA PAGINA DEL LOGIN ANDANDO A 
-  //             INCOLLARE IL PATH DELLA PAGINA SU CHROME VOGLIAMO GESTIRE CHE 
-  //             SE SONO LOGGATO MI MANDI ALLA HOME
-  //             */
-              
-  //             loggedIn ? <Navigate replace to='/' /> : <LoginForm login={handleLogin} />
-  //           } />
-  //         <Route path="/play" element={<RandomMeme />} /> {/* Add the route for RandomMeme */}
-  //         <Route path="/risposta/:corretto" element={<Risposta />} /> {/* Add the route for Risposta */}
-  //         <Route path="/game" element={<LogInfo  loggedIn={loggedIn} handleLogout={handleLogout} playTheGame={playTheGame} />} />
-  //         <Route path="/loggedGame" element={<GameLoggedIn />} />
-  //         <Route path="/showResults" element={<ShowResultsPage />} />
-  //       </Routes>
-  //       {message && <div className={`alert alert-${message.type}`}>{message.msg}</div>}
-  //       <HomeButtons />
-      
-  //   </Router>
-  // );
+
 
 
   

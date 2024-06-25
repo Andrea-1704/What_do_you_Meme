@@ -6,6 +6,7 @@ import dayjs from 'dayjs';
 function UserInfo() {
   const [userInfo, setUserInfo] = useState(null);
   const [history, setHistory] = useState([]);
+  
 
   const getUserInfo = async () => {
     return await API.getUserInfo();
@@ -62,6 +63,7 @@ function UserInfo() {
         console.log("history", historyWithRounds);
       } catch (error) {
         console.error("Failed to fetch user info:", error);
+        
       }
     };
 
@@ -73,23 +75,23 @@ function UserInfo() {
   }
 
   const renderGameHistory = () => {
-    
     return history.map((game) => (
-      
       <React.Fragment key={game.id}>
         <tr>
-          <td colSpan="4" className="game-header">Game ID: {game.id} - Date: {dayjs(game.date).format('YYYY-MM-DD')}</td>
+          <td colSpan="2" className="game-header">
+            Game ID: {game.id} - Date: {dayjs(game.date).format('YYYY-MM-DD')}
+          </td>
         </tr>
         {game.rounds.map((round) => (
           <tr key={round.id}>
-            <td>
-              
-              <img src={`${round.meme.path}`} alt={`Meme ${round.idMeme}`} style={{ width: '100px' }} />
+            <td className="compact-cell">
+              <img
+                src={`${round.meme.path}`}
+                alt={`Meme ${round.idMeme}`}
+                style={{ width: '100px' }}
+              />
             </td>
-            <td>{round.didascaliaScelta}</td>
-            <td>{round.didascaliaC1}</td>
-            <td>{round.didascaliaC2}</td>
-            <td>{round.idPunteggio}</td>
+            <td className="compact-cell">{round.idPunteggio}</td>
           </tr>
         ))}
       </React.Fragment>
@@ -111,8 +113,6 @@ function UserInfo() {
             <thead>
               <tr>
                 <th>Meme</th>
-                <th>Selected Caption</th>
-                <th>Correct Caption</th>
                 <th>Score</th>
               </tr>
             </thead>

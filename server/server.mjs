@@ -112,6 +112,7 @@ app.get('/api/meme', (request, response) => {
 //metodo per ottenere il punteggio della scelta:
 //GET /api/meme/:idM/didascalia/:idD
 app.get('/api/meme/:idM/didascalia/:idd', (request, response) => {
+  console.log("chiamata rest", request.params.idM, request.params.idd)
   getPunteggio(request.params.idM, request.params.idd)
   .then(did => response.json(did))
   .catch(() => response.status(500).end());
@@ -248,15 +249,23 @@ app.post('/api/round', isLoggedIn, [
   check('idMeme').isNumeric(),
   check('idDid').isNumeric(),
 ], async (request, response) => {
-
+  console.log("body", request.body)
   const { idMeme, idDid, idDidCor1, idDidCor2 } = request.body;
   try {
-    const punteggio = await getPunteggio(idMeme, idDid);
+    let punteggio=0;
+    if(idDid===-1){
+      //niente è stato selezionato
+      punteggio=0;
+    }
+    else{
+      punteggio = await getPunteggio(idMeme, idDid);
+    }
     const associazioneId = await addRound(idMeme, idDid, idDidCor1, idDidCor2, punteggio);
     response.json({ associazioneId });
   } catch (err) {
-    console.error("Errore nell'aggiungere l'associazione:", err.message);
-    response.status(500).end();
+    //console.error("Errore nell'aggiungere l'associazione:", err.message);
+    response.status(500)
+    .json({ error: 'hai fatto na cazzata'});
   }
 });
 

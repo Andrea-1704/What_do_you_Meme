@@ -26,13 +26,14 @@ function GameLoggedIn() {
   const [timeRemaining, setTimeRemaining] = useState(30); 
   const [riprova, setRiprova] = useState(0);
   const [message, setMessage] = useState('');
-  const [idRounds, setIdRound]=useState([]);
+  const [lostTurn, setLostTurn] = useState(false);
 
   const navigate = useNavigate();
   
   useEffect(() => {
     const fetchMeme = async () => {
       try {
+        let riprovato=0;
         if (round < 3) {
           const memeData = await API.fetchMeme();
           if (round === 0) {
@@ -40,30 +41,31 @@ function GameLoggedIn() {
             setMemeAttuale(memeData);
           }
           if (round === 1) {
-            // if (memeData.id === meme1.id) {
-            //   setRiprova(riprova + 1);
-            //   return;
-            // } else {
+            if (memeData.id === meme1.id) {
+              setRiprova(riprova + 1);
+              riprovato=1;
+            } else {
               setMeme2(memeData);
               setMemeAttuale(memeData);
-            //}
+            }
           }
           if (round === 2) {
-            // if (memeData.id === meme1.id || memeData.id === meme2.id) {
-            //   setRiprova(riprova + 1);
-            // } else {
+            if (memeData.id === meme1.id || memeData.id === meme2.id) {
+              setRiprova(riprova + 1);
+              riprovato=1;
+            } else {
               setMeme3(memeData);
               setMemeAttuale(memeData);
-            // }
+            }
           }
-          setRound(round + 1);
+          if(riprovato===0){setRound(round + 1);}
         }
       } catch (err) {
         setError(err.message);
       }
     };
     fetchMeme();
-  }, [scelta1, scelta2, scelta3, riprova]); 
+  }, [scelta1, scelta2, scelta3, riprova, lostTurn]); 
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -76,11 +78,13 @@ function GameLoggedIn() {
     if (timeRemaining === 1) {
       clearInterval(intervalId);
       //cambio il punteggio:
+      
       if(round===1) {
         setPunteggio1(0);
+        setLostTurn(true);
       }
-      if(round===2) setPunteggio2(0);
-      if(round===3) setPunteggio3(0);
+      if(round===2){ setPunteggio2(0); setLostTurn(true);}
+      if(round===3){ setPunteggio3(0); setLostTurn(true);}
       if (round < 3) {
         setRound(round + 1);
         setTimeRemaining(30);
@@ -99,7 +103,7 @@ function GameLoggedIn() {
   useEffect(() => {
     const fetchDataAndSendGame = async () => {
       try {
-        if (meme3 && scelta3) {
+        if (meme3 && (scelta3||lostTurn)) {
 
           const round1 = await API.sendRound(meme1.id, scelta1, didCorrette1[0], didCorrette1[1]);
           const round2 = await API.sendRound(meme2.id, scelta2, didCorrette2[0], didCorrette2[1]);
@@ -131,6 +135,7 @@ function GameLoggedIn() {
             const shuffledDidascalie = allDidascalie.sort(() => Math.random() - 0.5);
             setDidascalie1(shuffledDidascalie);
             setDidascalieAttuali(shuffledDidascalie);
+            console.log("seleziono nuove did")
             setTimeRemaining(30);
           } catch (err) {
             throw new Error('Failed to fetch didascalie');
@@ -143,11 +148,12 @@ function GameLoggedIn() {
           try {
             const uncorrectData = await API.fetchDidascalieScorrette(meme2.id);
             const correctData = await API.fetchDidascalieCorrette(meme2.id);
-            await setDidCorrette2([correctData[0].id, correctData[1].id]);
+            setDidCorrette2([correctData[0].id, correctData[1].id]);
             const allDidascalie = [...correctData, ...uncorrectData];
             const shuffledDidascalie = allDidascalie.sort(() => Math.random() - 0.5);
             setDidascalie2(shuffledDidascalie);
             setDidascalieAttuali(shuffledDidascalie);
+            console.log("seleziono nuove did")
             setTimeRemaining(30);
           } catch (err) {
             throw new Error('Failed to fetch didascalie');
@@ -165,6 +171,7 @@ function GameLoggedIn() {
             const shuffledDidascalie = allDidascalie.sort(() => Math.random() - 0.5);
             setDidascalie3(shuffledDidascalie);
             setDidascalieAttuali(shuffledDidascalie);
+            console.log("seleziono nuove did")
             setTimeRemaining(30);
           } catch (err) {
             throw new Error('Failed to fetch didascalie');
@@ -203,8 +210,11 @@ function GameLoggedIn() {
 
   const gestisciDidClick = async (didascaliaId) => {
     try {
+      setLostTurn(false);
       if (round === 1 &&meme1) {
+        
         const score = await API.getPunteggio(meme1.id, didascaliaId);
+        console.log("score", score)
         const isCorrect = parseInt(score);
         setScelta1(didascaliaId);
         //setPunteggio1(isCorrect);
@@ -216,7 +226,7 @@ function GameLoggedIn() {
           setMessage({ msg: `HAI SBAGLIATO; RITENTA!`, type: 'danger' });
         }
       }
-      if (round === 2&&meme2) {
+      if (round === 2 && meme2) {
         const score = await API.getPunteggio(meme2.id, didascaliaId);
         const isCorrect = parseInt(score);
         setScelta2(didascaliaId);
