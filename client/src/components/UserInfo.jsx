@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Table } from 'react-bootstrap';
+import { Container, Row, Col, Table, Alert } from 'react-bootstrap';
 import API from '../API.mjs';
 import dayjs from 'dayjs';
 
 function UserInfo() {
   const [userInfo, setUserInfo] = useState(null);
   const [history, setHistory] = useState([]);
+  const [message, setMessage] = useState('');
+
   
 
   const getUserInfo = async () => {
@@ -62,7 +64,7 @@ function UserInfo() {
         //console.log("user", user);
         console.log("history", historyWithRounds);
       } catch (error) {
-        console.error("Failed to fetch user info:", error);
+        setMessage({msg: error, type: 'danger'});
         
       }
     };
@@ -100,7 +102,11 @@ function UserInfo() {
 
   return (
     <Container fluid>
+      {message && <Row>
+      <Alert variant={message.type} onClose={() => setMessage('')} dismissible>{message.msg}</Alert>
+      </Row> }
       <Row>
+      
         <Col xs={12}>
           <p>Name: {userInfo.name}</p>
           <p>Email: {userInfo.username}</p>

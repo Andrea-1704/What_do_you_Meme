@@ -37,10 +37,12 @@ function GameLoggedIn() {
         if (round < 3) {
           const memeData = await API.fetchMeme();
           if (round === 0) {
+            console.log("round 0")
             setMeme1(memeData);
             setMemeAttuale(memeData);
           }
           if (round === 1) {
+            console.log("round 1")
             if (memeData.id === meme1.id) {
               setRiprova(riprova + 1);
               riprovato=1;
@@ -50,6 +52,7 @@ function GameLoggedIn() {
             }
           }
           if (round === 2) {
+            console.log("round 2")
             if (memeData.id === meme1.id || memeData.id === meme2.id) {
               setRiprova(riprova + 1);
               riprovato=1;
@@ -61,11 +64,12 @@ function GameLoggedIn() {
           if(riprovato===0){setRound(round + 1);}
         }
       } catch (err) {
-        setError(err.message);
+        
+        setMessage({ msg: err.message, type: 'danger' });
       }
     };
     fetchMeme();
-  }, [scelta1, scelta2, scelta3, riprova, lostTurn]); 
+  }, [scelta1, scelta2, scelta3, riprova]); 
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -82,11 +86,21 @@ function GameLoggedIn() {
       if(round===1) {
         setPunteggio1(0);
         setLostTurn(true);
+        setScelta1(-1);
       }
-      if(round===2){ setPunteggio2(0); setLostTurn(true);}
-      if(round===3){ setPunteggio3(0); setLostTurn(true);}
+      if(round===2){ 
+        setPunteggio2(0); 
+        setScelta2(-1);
+        setLostTurn(true);
+      }
+      if(round===3){ 
+        setPunteggio3(0); 
+        setScelta3(-1);
+        setLostTurn(true);
+      }
       if (round < 3) {
-        setRound(round + 1);
+        
+        //setRound(round + 1);
         setTimeRemaining(30);
       }
       setMessage({ msg: `Tempo scaduto!`, type: 'danger' });
@@ -112,10 +126,9 @@ function GameLoggedIn() {
           // Una volta che tutte le promesse sono risolte, invia i dati del gioco
           await API.sendGame(round1.associazioneId, round2.associazioneId, round3.associazioneId);
           // Puoi aggiungere ulteriori log o azioni qui se necessario
-          console.log("Game data sent successfully");
         }
       } catch (err) {
-        console.error("Error sending game data", err);
+        setMessage({ msg: err.message, type: 'danger' });
       }
     };
   
@@ -138,7 +151,7 @@ function GameLoggedIn() {
             console.log("seleziono nuove did")
             setTimeRemaining(30);
           } catch (err) {
-            throw new Error('Failed to fetch didascalie');
+            setMessage({ msg: err.message, type: 'danger' });
           }
         }
       }
@@ -156,7 +169,7 @@ function GameLoggedIn() {
             console.log("seleziono nuove did")
             setTimeRemaining(30);
           } catch (err) {
-            throw new Error('Failed to fetch didascalie');
+            setMessage({ msg: err.message, type: 'danger' });
           }
         }
       }
@@ -174,7 +187,7 @@ function GameLoggedIn() {
             console.log("seleziono nuove did")
             setTimeRemaining(30);
           } catch (err) {
-            throw new Error('Failed to fetch didascalie');
+            setMessage({ msg: err.message, type: 'danger' });
           }
         }
       }
@@ -208,6 +221,39 @@ function GameLoggedIn() {
     return {};
   };
 
+
+  const getButtonStyleIntermediate = (didascaliaId, round, punteggio, didScelta) => {
+    
+    //verifico che didascaliaID non sia una tra le didascalieCorrette del meme del round;
+    if (round === 1) {
+      if (didCorrette1.includes(didascaliaId)) {  
+        return { backgroundColor: 'green', color: 'white' };
+      }
+    }
+    if (round === 2) {
+      if (didCorrette2.includes(didascaliaId)) {
+        return { backgroundColor: 'green', color: 'white' };
+      }
+    }
+    if (round === 3) {
+      if (didCorrette3.includes(didascaliaId)) {
+        return { backgroundColor: 'green', color: 'white' };
+      }
+    }
+
+    if (didScelta === didascaliaId) {
+      if (punteggio === 0) {
+        return { backgroundColor: 'red', color: 'white' };
+      } else if (punteggio === 5) {
+        return { backgroundColor: 'green', color: 'white' };
+      }
+    }
+
+
+    return {};
+  };
+
+
   const gestisciDidClick = async (didascaliaId) => {
     try {
       setLostTurn(false);
@@ -217,12 +263,14 @@ function GameLoggedIn() {
         console.log("score", score)
         const isCorrect = parseInt(score);
         setScelta1(didascaliaId);
-        //setPunteggio1(isCorrect);
+        
         if (isCorrect === 5) {
           setMessage({ msg: `COMPLIMENTI; E' CORRETTO`, type: 'success' });
+          //mostraRisultati(5, 1, didascaliaId);
           setPunteggio1(5);
         } else {
           setPunteggio1(0);
+          //mostraRisultati(0, 1, didascaliaId);
           setMessage({ msg: `HAI SBAGLIATO; RITENTA!`, type: 'danger' });
         }
       }
@@ -232,8 +280,10 @@ function GameLoggedIn() {
         setScelta2(didascaliaId);
         if (isCorrect === 5) {
           setPunteggio2(5);
+          //mostraRisultati(5, 2, didascaliaId);
           setMessage({ msg: `COMPLIMENTI; E' CORRETTO`, type: 'success' });
         } else {
+          //mostraRisultati(0, 2, didascaliaId);
           setPunteggio2(0);
           setMessage({ msg: `HAI SBAGLIATO; RITENTA!`, type: 'danger' });
         }
@@ -243,17 +293,70 @@ function GameLoggedIn() {
         const isCorrect = parseInt(score);
         setScelta3(didascaliaId);
         if (isCorrect === 5) {
+          //mostraRisultati(5, 3, didascaliaId);  
           setPunteggio3(5);
           setMessage({ msg: `COMPLIMENTI; E' CORRETTO`, type: 'success' });
         } else {
+          //mostraRisultati(0, 3, didascaliaId);  
           setPunteggio3(0);
           setMessage({ msg: `HAI SBAGLIATO; RITENTA!`, type: 'danger' });
         }
       }
     } catch (err) {
-      console.error(err);
+      setMessage({ msg: err.message, type: 'danger' });
     }
   };
+
+  const incrementaPunteggio = (punteggio, round) => {
+    if (round === 1) {
+      setPunteggio1(punteggio);
+    } else if (round === 2) {
+      setPunteggio2(punteggio);
+    } else if (round === 3) {
+      setPunteggio3(punteggio);
+    }
+  };
+
+  const gestisciClick=(punteggio, round, didScelta) => {
+    incrementaPunteggio(punteggio, round);
+    if(round===1){setScelta1(didScelta);}
+    if(round===2){setScelta2(didScelta);}
+    if(round===3){setScelta3(didScelta);}
+
+  }
+
+
+  const mostraRisultati = (punteggio, round, didScelta) => {
+    let memes;let didascalie;
+    if(round===1){memes=meme1;didascalie=didascalie1;}
+    if(round===2){memes=meme2;didascalie=didascalie2;}
+    if(round===3){memes=meme3;didascalie=didascalie3;}
+    return (
+      <div className="final-results">
+        
+          <div key={round} className="result-item">
+            <img className="meme-image" src={memes.path} alt={`meme${round}`} />
+            <div className="result-buttons">
+              {didascalie.map((didascalia) => (
+                <button
+                  key={didascalia.id}
+                  style={getButtonStyleIntermediate(didascalia.id,  round, punteggio, didScelta)}
+                >
+                  {didascalia.testo}
+                </button>
+              ))}
+            </div>
+          </div>
+        
+        <div className="final-buttons">
+          <button 
+            style={{ backgroundColor: 'blue', color: 'white' }}
+            onClick={gestisciClick(punteggio, round, didScelta)}
+            >Next</button>
+      </div>
+      </div>
+    );
+  }
 
   const renderFinalResults = () => {
     const memes = [meme1, meme2, meme3];

@@ -1,24 +1,32 @@
 import { useState } from 'react';
-import { Form, Button, Row, Col } from 'react-bootstrap';
+import { Form, Button, Row, Col, Alert } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 
 function LoginForm(props) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
   const navigate = useNavigate();
   const handleSubmit = (event) => {
       event.preventDefault();
       
       const credentials = { username, password };
-      
-      // eslint-disable-next-line react/prop-types
-      props.login(credentials, navigate);
+      try {
+        // eslint-disable-next-line react/prop-types
+        props.login(credentials, navigate);
+      } catch (err) {
+        setMessage({msg: err, type: 'danger'});
+      }
 
       
   };
 
   return (
+    
     <Row>
+      {message && <Row>
+      <Alert variant={message.type} onClose={() => setMessage('')} dismissible>{message.msg}</Alert>
+      </Row> }
       <Col md={6}>
         <Form onSubmit={handleSubmit}>
           <Form.Group controlId='username' className='mb-3'>

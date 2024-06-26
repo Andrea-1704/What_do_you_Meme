@@ -50,6 +50,7 @@ const getUserInfo = async () => {
   const response = await fetch(SERVER_URL + '/api/sessions/current', {
     credentials: 'include',
   });
+  console.log("response error logout", response)
   const user = await response.json();
   if (response.ok) {
     return user;
@@ -63,17 +64,28 @@ const logOut = async() => {
     method: 'DELETE',
     credentials: 'include'
   });
+
   if (response.ok)
     return null;
+  // return await fetch(SERVER_URL + '/api/sessions/current', {
+  //   method: 'DELETE',
+  //   credentials: 'include'
+  // })
+  // .then(handleInvalidResponse)
+  // .then((response) => response.json());
 }
 
 const fetchMeme = async () => {
-  const response = await fetch(SERVER_URL + '/api/meme');
-    if (!response.ok) {
-      throw new Error('Failed to fetch meme');
-    }
-    const meme = await response.json();
-  return meme;
+  // const response = await fetch(SERVER_URL + '/api/meme');
+  //   if (!response.ok) {
+  //     throw new Error('Failed to fetch meme');
+  //   }
+  //   const meme = await response.json();
+  // return meme;
+
+  return await fetch(SERVER_URL + '/api/meme')
+  .then(handleInvalidResponse)
+  .then((response) => response.json());
   
 };
 
@@ -111,67 +123,111 @@ const getPunteggio = async(memeId, didId) => {
 
 const sendRound = async (meme, didascalia, idCor1, idCor2) => {
   
-  const response = await fetch(SERVER_URL + '/api/round', {
+  // const response = await fetch(SERVER_URL + '/api/round', {
+  //   method: 'POST',
+  //   credentials: 'include',
+  //   headers: {'Content-Type': 'application/json'},
+  //   body: JSON.stringify({idMeme: meme, idDid: didascalia, idDidCor1: idCor1, idDidCor2: idCor2}),
+  // });
+  
+  // const idRound = await response.json();
+  // if (response.ok) {
+  //   return idRound;
+  // } else {
+  //   throw idRound;  
+  // }
+
+  return await fetch(SERVER_URL + '/api/round', {
     method: 'POST',
     credentials: 'include',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({idMeme: meme, idDid: didascalia, idDidCor1: idCor1, idDidCor2: idCor2}),
-  });
-  
-  const idRound = await response.json();
-  if (response.ok) {
-    return idRound;
-  } else {
-    throw idRound;  
-  }
+  })
+.then(handleInvalidResponse)
+.then((response) => response.json());
 };
 
 const sendGame = async (idR1, idR2, idR3) => {
-  console.log("dati ricevuti dentro api", idR1, idR2, idR3)
-  const response = await fetch(SERVER_URL + '/api/game', {
-    method: 'POST',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({idR1: idR1, idR2: idR2, idR3: idR3}),
-  });
-  const idGame = await response.json();
-  if (response.ok) {
-    return idGame;
-  } else {
-    throw idGame;  
-  }
+  // console.log("dati ricevuti dentro api", idR1, idR2, idR3)
+  // const response = await fetch(SERVER_URL + '/api/game', {
+  //   method: 'POST',
+  //   credentials: 'include',
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //   },
+  //   body: JSON.stringify({idR1: idR1, idR2: idR2, idR3: idR3}),
+  // });
+  // const idGame = await response.json();
+  // if (response.ok) {
+  //   return idGame;
+  // } else {
+  //   throw idGame;  
+  // }
+  return await fetch(SERVER_URL + '/api/game', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({idR1: idR1, idR2: idR2, idR3: idR3}),
+   })
+  .then(handleInvalidResponse)
+  .then((response) => response.json());
 };
 
 //metodo che chiama la get all'indirizzo '/api/round/:id':
 const getRoundById = async (id) => {
+  /*
   const response = await fetch(SERVER_URL + `/api/round/${id}`);
   if(!response.ok){
     throw new Error('Failed to fetch round');
   }
   const round=await response.json();
-  return round;
+  return round;*/
+  return await fetch(SERVER_URL + `/api/round/${id}`)
+  .then(handleInvalidResponse)
+  .then((response) => response.json());
 }
 
 //metodo per ottenere un meme dato il suo id:
 const getMemeById = async (id) => {
-  const response = await fetch(SERVER_URL + `/api/meme/${id}`);
-  if(!response.ok){
-    throw new Error('Failed to fetch meme');
-  }
-  const meme=await response.json();
-  return meme;
+
+  return await fetch(SERVER_URL + `/api/meme/${id}`)
+  .then(handleInvalidResponse)
+  .then((response) => response.json());
+
+  // const response = await fetch(SERVER_URL + `/api/meme/${id}`);
+  // if(!response.ok){
+  //   throw new Error('Failed to fetch meme');
+  // }
+  // const meme=await response.json();
+  // return meme;
 }
 
 //metodo per ottenere una didascalia dato il suo id:
 const getDidascaliaById = async (id) => {
-  const response = await fetch(SERVER_URL + `/api/didascalia/${id}`);
-  if(!response.ok){
-    throw new Error('Failed to fetch didascalia');
+  return await fetch(SERVER_URL + `/api/didascalia/${id}`)
+  .then(handleInvalidResponse)
+  .then((response) => response.json());
+}
+
+// const getHistory = async () => {
+//   return await fetch(SERVER_URL + /api/history, {
+//     credentials: "include",
+//   })
+//     .then(handleInvalidResponse)
+//     .then((response) => response.json());
+// };
+
+function handleInvalidResponse(response) {
+  if (!response.ok) {
+    throw Error(response.statusText);
   }
-  const didascalia=await response.json();
-  return didascalia;
+  let type = response.headers.get("Content-Type");
+  if (type !== null && type.indexOf("application/json") === -1) {
+    throw new TypeError(`Expected JSON, got ${type}`);
+  }
+  return response;
 }
 
 

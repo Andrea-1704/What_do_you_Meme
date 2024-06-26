@@ -1,6 +1,7 @@
+/* eslint-disable react/prop-types */
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useEffect, useState } from 'react';
-import { Container, Row, Alert } from 'react-bootstrap';
+import { Container, Row, Alert, Button } from 'react-bootstrap';
 import { Routes, Route, Outlet, Navigate, useNavigate } from 'react-router-dom';
 import { BrowserRouter as Router, Link, useLocation } from 'react-router-dom';
 import NavHeader from './components/NavHeader';
@@ -31,6 +32,28 @@ function HomeButtons() {
   return null; // Don't render anything if the path is not '/'
 }
 
+function LoggedButton(props) {
+  const location = useLocation();
+
+  if (location.pathname === '/') {
+    return (
+      <div>
+        <Link to="/loggedGame">
+          <button>Play game</button>
+        </Link>
+        <span style={{ margin: '0 10px' }}>or</span>
+        <Link to="/game">
+          <button>My data</button>
+        </Link>
+        <span style={{ margin: '0 10px' }}>or</span>
+        <Button onClick={props.handleLogout}>Logout</Button>
+      </div>
+    );
+  }
+
+  return null; // Don't render anything if the path is not '/'
+}
+
 function App() {
   
   const [loggedIn, setLoggedIn] = useState(false);
@@ -39,6 +62,7 @@ function App() {
   
  
   const handleLogin = async (credentials, navigate) => {
+    // eslint-disable-next-line no-useless-catch
     try {
       const user = await API.logIn(credentials);
       setLoggedIn(true);
@@ -53,7 +77,8 @@ function App() {
       setUser(user);
       navigate('/game');
     }catch(err) {
-      setMessage({msg: err, type: 'danger'});
+
+      throw err;
       /*
       NOTA BENE: QUESTO TI PERMETTE DI AVERE LA 
       SCHERAMATA ROSSA PER DIRE CHE IL LOGIN NON 
@@ -68,8 +93,9 @@ function App() {
 
 
   const handleLogout = async (navigate) => {
-    
+    console.log("dentro il metodo");
     await API.logOut();
+    console.log("dopo il metodo")
     setLoggedIn(false);
     // clean up everything
     setMessage('Logged out successfully!');
@@ -95,15 +121,17 @@ function App() {
         <Container fluid className='mt-3'>
           {/*questo mi mostra l'eventuale messaggio di errore
           o di successo\*/}
-          {message && <Row>
-            <Alert variant={message.type} onClose={() => setMessage('')} dismissible>{message.msg}</Alert>
-          </Row> }
+          
           <Outlet/>
         </Container>
         </>
       }>
         <Route index element={
-          <HomeButtons />
+          loggedIn ? (
+            <LoggedButton handleLogout={handleLogout} /> 
+          ) : (
+            <HomeButtons />
+          )
         } />
         <Route path="/login" element={
               //nb:

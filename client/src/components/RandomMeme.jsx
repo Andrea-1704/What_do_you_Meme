@@ -1,11 +1,12 @@
 // eslint-disable-next-line no-unused-vars
 import React, { useState, useEffect } from 'react';
 import API from '../API.mjs';
+import { Row, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 
 function RandomMeme() {
   const [meme, setMeme] = useState(null);
-  const [error, setError] = useState(null);
+  const [message, setMessage] = useState('');
   const [didascalie, setDidascalie] = useState([]);
   const navigate=useNavigate();
   
@@ -15,7 +16,7 @@ function RandomMeme() {
         const memeData = await API.fetchMeme();
         setMeme(memeData);
       } catch (err) {
-        setError(err.message);
+        setMessage({msg: err, type: 'danger'});
       }
     };
     // Chiamata alla funzione fetchMeme
@@ -34,7 +35,7 @@ function RandomMeme() {
           //console.log(shuffledDidascalie);
           setDidascalie(shuffledDidascalie);
         } catch (err) {
-          throw new Error('Failed to fetch didascalie');
+          setMessage({msg: err, type: 'danger'});
         }
       }
     };
@@ -43,9 +44,7 @@ function RandomMeme() {
   }, [meme]); // Esegue questo effetto solo quando `meme` cambia*/
 
 
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+ 
 
   if (!meme) {
     return <div>Loading...</div>;
@@ -65,7 +64,7 @@ function RandomMeme() {
         navigate(`/risposta/${corretto}`);
       }
     } catch (err) {
-      console.error(err);
+      setMessage({msg: err, type: 'danger'});
       // Handle error here
     }
   };
@@ -73,6 +72,11 @@ function RandomMeme() {
 
   return (
     <div style={{ textAlign: 'center' }}>
+      
+      <Row>
+      {message && <Row>
+        <Alert variant={message.type} onClose={() => setMessage('')} dismissible>{message.msg}</Alert>
+      </Row> }
       <img src={meme.path} alt={meme.id} style={{ width: '300px', height: '200px' }} />
       <div style={{ marginTop: '20px' }}>
         {didascalie.slice(0, 7).map((didascalia, index) => (
@@ -85,6 +89,7 @@ function RandomMeme() {
           </button>
         ))}
       </div>
+      </Row>
     </div>
   );
 }
