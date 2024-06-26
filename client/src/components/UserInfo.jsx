@@ -102,11 +102,11 @@ function UserInfo() {
 
   return (
     <Container fluid>
-      {message && <Row>
-      <Alert variant={message.type} onClose={() => setMessage('')} dismissible>{message.msg}</Alert>
-      </Row> }
-      <Row>
       
+      <Row>
+        {message && <Row>
+        <Alert variant={message.type} onClose={() => setMessage('')} dismissible>{message.msg}</Alert>
+        </Row> }
         <Col xs={12}>
           <p>Name: {userInfo.name}</p>
           <p>Email: {userInfo.username}</p>

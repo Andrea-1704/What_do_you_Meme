@@ -249,7 +249,6 @@ app.post('/api/round', isLoggedIn, [
   check('idMeme').isNumeric(),
   check('idDid').isNumeric(),
 ], async (request, response) => {
-  console.log("body", request.body)
   const { idMeme, idDid, idDidCor1, idDidCor2 } = request.body;
   try {
     let punteggio=0;
@@ -264,8 +263,7 @@ app.post('/api/round', isLoggedIn, [
     response.json({ associazioneId });
   } catch (err) {
     //console.error("Errore nell'aggiungere l'associazione:", err.message);
-    response.status(500)
-    .json({ error: 'hai fatto na cazzata'});
+    response.status(500).json({ error: e.message});
   }
 });
 

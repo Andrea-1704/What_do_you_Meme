@@ -59,6 +59,11 @@
     color: white !important;
   }
   
+  .didascalia-button-correct {
+    background-color: green;
+    color: white;
+  }
+
   .final-results {
     display: flex;
     flex-direction: column;

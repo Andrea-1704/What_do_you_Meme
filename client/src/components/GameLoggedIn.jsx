@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import API from '../API.mjs';
+import { Alert, Row } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import './GameLoggedIn.css';  // Assicurati di creare un file CSS separato
 
@@ -12,7 +13,6 @@ function GameLoggedIn() {
   const [punteggio2, setPunteggio2] = useState(-1);
   const [punteggio3, setPunteggio3] = useState(-1);
   const [round, setRound] = useState(0);
-  const [error, setError] = useState(null);
   const [didascalie1, setDidascalie1] = useState([]);
   const [didascalie2, setDidascalie2] = useState([]);
   const [didascalie3, setDidascalie3] = useState([]);
@@ -23,45 +23,51 @@ function GameLoggedIn() {
   const [scelta2, setScelta2] = useState(null); 
   const [scelta3, setScelta3] = useState(null); 
   const [didascalieAttuali, setDidascalieAttuali] = useState([]);
+  const [didascalieAttualiCor, setDidascalieAttualiCor] = useState([]);
   const [timeRemaining, setTimeRemaining] = useState(30); 
   const [riprova, setRiprova] = useState(0);
   const [message, setMessage] = useState('');
   const [lostTurn, setLostTurn] = useState(false);
+  const [sceltaErrata, setSceltaErrata] = useState(false);
+  const [finito, setFinito] = useState(false);
 
   const navigate = useNavigate();
   
   useEffect(() => {
     const fetchMeme = async () => {
       try {
-        let riprovato=0;
-        if (round < 3) {
-          const memeData = await API.fetchMeme();
-          if (round === 0) {
-            console.log("round 0")
-            setMeme1(memeData);
-            setMemeAttuale(memeData);
-          }
-          if (round === 1) {
-            console.log("round 1")
-            if (memeData.id === meme1.id) {
-              setRiprova(riprova + 1);
-              riprovato=1;
-            } else {
-              setMeme2(memeData);
+        //se la scelta è errata non mostro il nuovo meme perché devo ancora attendere che 
+        //l'utente mi clicci next per farmi capire che posso andare avanti:
+        //NOTA CHE QUINDI E' DENTRO L'AZIONE DI NET CHE DEVO RENDERE SCELTA ERRATA FALSE
+        if(sceltaErrata===false){
+          let riprovato=0;
+          if (round < 3) {
+            const memeData = await API.fetchMeme();
+            setMessage('');
+            if (round === 0) {
+              setMeme1(memeData);
               setMemeAttuale(memeData);
             }
-          }
-          if (round === 2) {
-            console.log("round 2")
-            if (memeData.id === meme1.id || memeData.id === meme2.id) {
-              setRiprova(riprova + 1);
-              riprovato=1;
-            } else {
-              setMeme3(memeData);
-              setMemeAttuale(memeData);
+            if (round === 1) {
+              if (memeData.id === meme1.id) {
+                setRiprova(riprova + 1);
+                riprovato=1;
+              } else {
+                setMeme2(memeData);
+                setMemeAttuale(memeData);
+              }
             }
+            if (round === 2) {
+              if (memeData.id === meme1.id || memeData.id === meme2.id) {
+                setRiprova(riprova + 1);
+                riprovato=1;
+              } else {
+                setMeme3(memeData);
+                setMemeAttuale(memeData);
+              }
+            }
+            if(riprovato===0){setRound(round + 1);}
           }
-          if(riprovato===0){setRound(round + 1);}
         }
       } catch (err) {
         
@@ -69,7 +75,7 @@ function GameLoggedIn() {
       }
     };
     fetchMeme();
-  }, [scelta1, scelta2, scelta3, riprova]); 
+  }, [scelta1, scelta2, scelta3, riprova, sceltaErrata]); 
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -78,32 +84,49 @@ function GameLoggedIn() {
 
     const timeoutId = setTimeout(() => {
     }, 30000);
-
-    if (timeRemaining === 1) {
+    //nota che se la scelta è errata ancora devo attendere che l'utente clicci il 
+    //tasto next quindi è necessario "congelare" il tempo:
+    if (timeRemaining <= 1 && sceltaErrata===false && !finito) {
       clearInterval(intervalId);
       //cambio il punteggio:
-      
+      let tempoScaduto=0;//variabile che mi serve solo per decidere 
+      //quale messaggio mostrare all'utente: tempo scaduto oppure
+      //risposta errata
       if(round===1) {
         setPunteggio1(0);
-        setLostTurn(true);
-        setScelta1(-1);
+        //setLostTurn(true);
+        if(!scelta1){
+          setScelta1(-1);
+          tempoScaduto=1;
+        }
+        //se la scelta è meno uno per un dato round si assuma che sia 
+        //terminato il timer.
       }
       if(round===2){ 
         setPunteggio2(0); 
-        setScelta2(-1);
-        setLostTurn(true);
+        if(!scelta2){
+          setScelta2(-1);
+          tempoScaduto  =1;
+        }
+        //setLostTurn(true);
       }
       if(round===3){ 
         setPunteggio3(0); 
-        setScelta3(-1);
-        setLostTurn(true);
+        if(!scelta3){
+          setScelta3(-1);
+          tempoScaduto=1;
+        }
+        //setLostTurn(true);
       }
       if (round < 3) {
-        
         //setRound(round + 1);
         setTimeRemaining(30);
       }
-      setMessage({ msg: `Tempo scaduto!`, type: 'danger' });
+      if(tempoScaduto===1){
+        setMessage({ msg: `Tempo scaduto!`, type: 'danger' });
+      }else{
+        setMessage({ msg: `Risposta errata`, type: 'danger' });
+      }
     }
 
     return () => {
@@ -117,15 +140,21 @@ function GameLoggedIn() {
   useEffect(() => {
     const fetchDataAndSendGame = async () => {
       try {
-        if (meme3 && (scelta3||lostTurn)) {
-
+        // Se tutte le scelte sono state fatte, invia i dati del gioco
+        //attenzione che l'ultimo round potrebbe essere "terminato per il 
+        //timer", quindi si effettua il check che la scelta 3 non sia proprio 
+        //meno uno.
+        if (meme3 && (scelta3||scelta3===-1)) {
+          //memorizzo nel back and anche, tra tutte le didascalie corrette
+          //per un meme quali erano esattamente le due mostrate. 
+          //Questa cosa è evitabile!
+          setFinito(true);
           const round1 = await API.sendRound(meme1.id, scelta1, didCorrette1[0], didCorrette1[1]);
           const round2 = await API.sendRound(meme2.id, scelta2, didCorrette2[0], didCorrette2[1]);
           const round3 = await API.sendRound(meme3.id, scelta3, didCorrette3[0], didCorrette3[1]);
           
           // Una volta che tutte le promesse sono risolte, invia i dati del gioco
           await API.sendGame(round1.associazioneId, round2.associazioneId, round3.associazioneId);
-          // Puoi aggiungere ulteriori log o azioni qui se necessario
         }
       } catch (err) {
         setMessage({ msg: err.message, type: 'danger' });
@@ -144,11 +173,11 @@ function GameLoggedIn() {
             const uncorrectData = await API.fetchDidascalieScorrette(meme1.id);
             const correctData = await API.fetchDidascalieCorrette(meme1.id);
             setDidCorrette1([correctData[0].id, correctData[1].id]);
+            setDidascalieAttualiCor([correctData[0].id, correctData[1].id]);
             const allDidascalie = [...correctData, ...uncorrectData];
             const shuffledDidascalie = allDidascalie.sort(() => Math.random() - 0.5);
             setDidascalie1(shuffledDidascalie);
             setDidascalieAttuali(shuffledDidascalie);
-            console.log("seleziono nuove did")
             setTimeRemaining(30);
           } catch (err) {
             setMessage({ msg: err.message, type: 'danger' });
@@ -162,11 +191,11 @@ function GameLoggedIn() {
             const uncorrectData = await API.fetchDidascalieScorrette(meme2.id);
             const correctData = await API.fetchDidascalieCorrette(meme2.id);
             setDidCorrette2([correctData[0].id, correctData[1].id]);
+            setDidascalieAttualiCor([correctData[0].id, correctData[1].id]);
             const allDidascalie = [...correctData, ...uncorrectData];
             const shuffledDidascalie = allDidascalie.sort(() => Math.random() - 0.5);
             setDidascalie2(shuffledDidascalie);
             setDidascalieAttuali(shuffledDidascalie);
-            console.log("seleziono nuove did")
             setTimeRemaining(30);
           } catch (err) {
             setMessage({ msg: err.message, type: 'danger' });
@@ -180,11 +209,11 @@ function GameLoggedIn() {
             const uncorrectData = await API.fetchDidascalieScorrette(meme3.id);
             const correctData = await API.fetchDidascalieCorrette(meme3.id);
             setDidCorrette3([correctData[0].id, correctData[1].id]);
+            setDidascalieAttualiCor([correctData[0].id, correctData[1].id]);
             const allDidascalie = [...correctData, ...uncorrectData];
             const shuffledDidascalie = allDidascalie.sort(() => Math.random() - 0.5);
             setDidascalie3(shuffledDidascalie);
             setDidascalieAttuali(shuffledDidascalie);
-            console.log("seleziono nuove did")
             setTimeRemaining(30);
           } catch (err) {
             setMessage({ msg: err.message, type: 'danger' });
@@ -196,60 +225,20 @@ function GameLoggedIn() {
     fetchDidascalie();
   }, [meme1, meme2, meme3]);
 
-  const getButtonStyle = (didascaliaId, round) => {
-    let scelta, punteggio;
-
-    if (round === 1) {
+  const getButtonStyle = (didascaliaId, roundPassato) => {
+    let scelta;
+    //andiamo a prendere la scelta del round:
+    if (roundPassato === 1) {
       scelta = scelta1;
-      punteggio = punteggio1;
-    } else if (round === 2) {
+    } else if (roundPassato === 2) {
       scelta = scelta2;
-      punteggio = punteggio2;
-    } else if (round === 3) {
+    } else if (roundPassato === 3) {
       scelta = scelta3;
-      punteggio = punteggio3;
     }
 
     if (scelta === didascaliaId) {
-      if (punteggio === 0) {
-        return { backgroundColor: 'red', color: 'white' };
-      } else if (punteggio === 5) {
         return { backgroundColor: 'green', color: 'white' };
-      }
     }
-
-    return {};
-  };
-
-
-  const getButtonStyleIntermediate = (didascaliaId, round, punteggio, didScelta) => {
-    
-    //verifico che didascaliaID non sia una tra le didascalieCorrette del meme del round;
-    if (round === 1) {
-      if (didCorrette1.includes(didascaliaId)) {  
-        return { backgroundColor: 'green', color: 'white' };
-      }
-    }
-    if (round === 2) {
-      if (didCorrette2.includes(didascaliaId)) {
-        return { backgroundColor: 'green', color: 'white' };
-      }
-    }
-    if (round === 3) {
-      if (didCorrette3.includes(didascaliaId)) {
-        return { backgroundColor: 'green', color: 'white' };
-      }
-    }
-
-    if (didScelta === didascaliaId) {
-      if (punteggio === 0) {
-        return { backgroundColor: 'red', color: 'white' };
-      } else if (punteggio === 5) {
-        return { backgroundColor: 'green', color: 'white' };
-      }
-    }
-
-
     return {};
   };
 
@@ -257,48 +246,46 @@ function GameLoggedIn() {
   const gestisciDidClick = async (didascaliaId) => {
     try {
       setLostTurn(false);
-      if (round === 1 &&meme1) {
+      if (round === 1 && meme1 && scelta1===null) {
         
         const score = await API.getPunteggio(meme1.id, didascaliaId);
-        console.log("score", score)
         const isCorrect = parseInt(score);
         setScelta1(didascaliaId);
-        
         if (isCorrect === 5) {
-          setMessage({ msg: `COMPLIMENTI; E' CORRETTO`, type: 'success' });
-          //mostraRisultati(5, 1, didascaliaId);
           setPunteggio1(5);
+          setMessage({ msg: `COMPLIMENTI; E' CORRETTO`, type: 'success' });
         } else {
+          setSceltaErrata(true);
           setPunteggio1(0);
-          //mostraRisultati(0, 1, didascaliaId);
+          setTimeRemaining(1);
           setMessage({ msg: `HAI SBAGLIATO; RITENTA!`, type: 'danger' });
         }
       }
-      if (round === 2 && meme2) {
+      if (round === 2 && meme2 && scelta2===null) {
         const score = await API.getPunteggio(meme2.id, didascaliaId);
         const isCorrect = parseInt(score);
         setScelta2(didascaliaId);
         if (isCorrect === 5) {
           setPunteggio2(5);
-          //mostraRisultati(5, 2, didascaliaId);
           setMessage({ msg: `COMPLIMENTI; E' CORRETTO`, type: 'success' });
         } else {
-          //mostraRisultati(0, 2, didascaliaId);
+          setSceltaErrata(true);
           setPunteggio2(0);
+          setTimeRemaining(1);
           setMessage({ msg: `HAI SBAGLIATO; RITENTA!`, type: 'danger' });
         }
       }
-      if (round === 3&&meme3) {
+      if (round === 3&&meme3&&scelta3===null) {
         const score = await API.getPunteggio(meme3.id, didascaliaId);
         const isCorrect = parseInt(score);
         setScelta3(didascaliaId);
         if (isCorrect === 5) {
-          //mostraRisultati(5, 3, didascaliaId);  
           setPunteggio3(5);
           setMessage({ msg: `COMPLIMENTI; E' CORRETTO`, type: 'success' });
         } else {
-          //mostraRisultati(0, 3, didascaliaId);  
+          setSceltaErrata(true);
           setPunteggio3(0);
+          setTimeRemaining(1);
           setMessage({ msg: `HAI SBAGLIATO; RITENTA!`, type: 'danger' });
         }
       }
@@ -306,61 +293,41 @@ function GameLoggedIn() {
       setMessage({ msg: err.message, type: 'danger' });
     }
   };
-
-  const incrementaPunteggio = (punteggio, round) => {
-    if (round === 1) {
-      setPunteggio1(punteggio);
-    } else if (round === 2) {
-      setPunteggio2(punteggio);
-    } else if (round === 3) {
-      setPunteggio3(punteggio);
+  //metodo che serve per prendere la lista di tutti i meme correttamente 
+  //associati (per il rendering finale):
+  const correctMemes=() =>{
+    let result=[];
+    if(punteggio1===5){
+      result.push(meme1);
     }
-  };
-
-  const gestisciClick=(punteggio, round, didScelta) => {
-    incrementaPunteggio(punteggio, round);
-    if(round===1){setScelta1(didScelta);}
-    if(round===2){setScelta2(didScelta);}
-    if(round===3){setScelta3(didScelta);}
-
+    if(punteggio2===5){
+      result.push(meme2);
+    }
+    if(punteggio3===5){
+      result.push(meme3);
+    }
+    return result;
   }
 
-
-  const mostraRisultati = (punteggio, round, didScelta) => {
-    let memes;let didascalie;
-    if(round===1){memes=meme1;didascalie=didascalie1;}
-    if(round===2){memes=meme2;didascalie=didascalie2;}
-    if(round===3){memes=meme3;didascalie=didascalie3;}
-    return (
-      <div className="final-results">
-        
-          <div key={round} className="result-item">
-            <img className="meme-image" src={memes.path} alt={`meme${round}`} />
-            <div className="result-buttons">
-              {didascalie.map((didascalia) => (
-                <button
-                  key={didascalia.id}
-                  style={getButtonStyleIntermediate(didascalia.id,  round, punteggio, didScelta)}
-                >
-                  {didascalia.testo}
-                </button>
-              ))}
-            </div>
-          </div>
-        
-        <div className="final-buttons">
-          <button 
-            style={{ backgroundColor: 'blue', color: 'white' }}
-            onClick={gestisciClick(punteggio, round, didScelta)}
-            >Next</button>
-      </div>
-      </div>
-    );
+  const correctDidascalie=()=> {
+    let result=[];
+    if(punteggio1===5){
+      result.push(didascalie1);
+    }
+    if(punteggio2===5){
+      result.push(didascalie2);
+    }
+    if(punteggio3===5){
+      result.push(didascalie3);
+    }
+    return result;
   }
 
+  //funzione che mi serve per renderizzare i risultati finali:
   const renderFinalResults = () => {
-    const memes = [meme1, meme2, meme3];
-    const didascalie = [didascalie1, didascalie2, didascalie3];
+  
+    const memes = correctMemes();
+    const didascalie = correctDidascalie();
     //const scelte = [scelta1, scelta2, scelta3];
     //const punteggi = [punteggio1, punteggio2, punteggio3];
 
@@ -386,28 +353,34 @@ function GameLoggedIn() {
       setTimeRemaining(30);
       setRiprova(0);
       setMessage('');
+      setSceltaErrata(false);
+      setFinito(false);
     };
 
     const handleUserInfo = () => {
       navigate('/game');
     }
+
+    
   
     return (
       <div className="final-results">
         {memes.map((meme, index) => (
-          <div key={index} className="result-item">
-            <img className="meme-image" src={meme.path} alt={`meme${index + 1}`} />
-            <div className="result-buttons">
-              {didascalie[index].map((didascalia) => (
-                <button
-                  key={didascalia.id}
-                  style={getButtonStyle(didascalia.id, index + 1)}
-                >
-                  {didascalia.testo}
-                </button>
-              ))}
+          
+            <div key={index} className="result-item">
+              <img className="meme-image" src={meme.path} alt={`meme${index + 1}`} />
+              <div className="result-buttons">
+                {didascalie[index].map((didascalia) => (
+                  <button
+                    key={didascalia.id}
+                    style={getButtonStyle(didascalia.id, index + 1)}
+                  >
+                    {didascalia.testo}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          
         ))}
         <div className="final-buttons">
           <button 
@@ -423,10 +396,58 @@ function GameLoggedIn() {
     );
   };
 
-  if (round >= 3&&scelta3) {
+
+  const handleSceltaErrataClick = () => {
+    //const sceltaEffettuata= sceltaErrata;
+    setSceltaErrata(false);
+    // if(round===1){
+    //   setScelta1(sceltaEffettuata);
+    // }
+    // if(round===2){
+    //   setScelta2(sceltaEffettuata);
+    // }
+    // if(round===3){
+    //   setScelta3(sceltaEffettuata);
+    // }
+    setTimeRemaining(30);
+  }
+
+  //metodo per dire se la didascalia è corretta:
+  const didCorretta = (didascaliaId) => {
+    for(let i=0; i<didascalieAttualiCor.length; i++){
+      if(didascalieAttualiCor[i]===didascaliaId){
+        return true;
+      }
+    }
+    return false;
+  }
+
+  //metodo per scegliere la classe css del button:
+  const getClasseButton = (didascaliaId) => {
+    if (sceltaErrata!=false && didCorretta(didascaliaId)) {
+      return 'didascalia-button-correct';
+    }
+    return 'didascalia-button';
+  };
+
+
+  // if(message){
+  //   return (
+  //     <>
+  //     {message && <Row>
+  //       <Alert variant={message.type} onClose={() => setMessage('')} dismissible>{message.msg}</Alert>
+  //     </Row> }
+  //     </>
+  //   )
+  // }
+
+  //rendering finale:
+  if (round >= 3&&scelta3&&sceltaErrata===false) {
     return (
       <div className="game-container">
-        {renderFinalResults()}
+        {message && <div>
+          <Alert variant={message.type} onClose={() => setMessage('')} dismissible>{message.msg}</Alert>
+        </div> }
         <div>
           <h1>Risultati finali</h1>
           <h2>Meme 1: {punteggio1}</h2>
@@ -434,18 +455,13 @@ function GameLoggedIn() {
           <h2>Meme 3: {punteggio3}</h2>
           
         </div>
+        {renderFinalResults()}
       </div>
     );
   }
 
-  if (error) {
-    return (
-      <div className="game-container">
-        <div>Error: {error}</div>
-      </div>
-    );
-  }
-
+  
+  //pagina di caricamento:
   if (!memeAttuale) {
     return (
       <div className="game-container">
@@ -454,33 +470,46 @@ function GameLoggedIn() {
     );
   }
 
+  
+
   return (
     <div className="game-container">
-      <div>
-        <img className="meme-image" src={memeAttuale.path} alt="current meme" />
-      </div>
-      <div className="buttons-container">
-        {didascalieAttuali.map((didascalia) => (
-          <button
-            key={didascalia.id}
-            className="didascalia-button"
-            onClick={() => gestisciDidClick(didascalia.id)}
-            style={getButtonStyle(didascalia.id, round)}
-          >
-            {didascalia.testo}
-          </button>
-        ))}
-      </div>
-      <div>
-        <h1>Round {round} di 3</h1>
-        <h2>Tempo rimasto: {timeRemaining} secondi</h2>
-      </div>
-      {message && (
-        <div className={`message ${message.type}`}>
-          {message.msg}
-        </div>
-      )}
+       {message && 
+            <Alert variant={message.type} onClose={() => setMessage('')} dismissible>{message.msg}</Alert>
+       }
+    
+    <div>
+      
+    
+    <img className="meme-image" src={memeAttuale.path} alt="current meme" />
+  </div>
+  <div className="buttons-container">
+    {didascalieAttuali.map((didascalia) => (
+      <button
+        key={didascalia.id}
+        className={getClasseButton(didascalia.id)}
+        onClick={() => gestisciDidClick(didascalia.id)}
+      >
+        {didascalia.testo}
+      </button>
+    ))}
+  </div>
+  <div>
+    <h1>Round {round} di 3</h1>
+    {!(sceltaErrata||sceltaErrata===-1) && (
+    <h2>Tempo rimasto: {timeRemaining} secondi</h2>
+  )}
+    {/* Condizione per mostrare il pulsante se sceltaErrata è true */}
+    {(sceltaErrata||sceltaErrata===-1) && (
+      <button onClick={handleSceltaErrataClick}>Next</button>
+    )}
+  </div>
+  {message && (
+    <div className={`message ${message.type}`}>
+      {message.msg}
     </div>
+  )}
+</div>
   );
 }
 
