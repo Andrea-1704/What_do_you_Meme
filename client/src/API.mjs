@@ -121,13 +121,13 @@ const getPunteggio = async(memeId, didId) => {
 }
 
 
-const sendRound = async (meme, didascalia, idCor1, idCor2) => {
+const sendRound = async (meme, didascalia) => {
   
   const response = await fetch(SERVER_URL + '/api/round', {
     method: 'POST',
     credentials: 'include',
     headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({idMeme: meme, idDid: didascalia, idDidCor1: idCor1, idDidCor2: idCor2}),
+    body: JSON.stringify({idMeme: meme, idDid: didascalia}),
   });
   if (!response.ok) {
     const errMessage = await response.json();

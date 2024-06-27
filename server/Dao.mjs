@@ -191,10 +191,10 @@ export const createUser = (nome, cognome, mail, password, sale) => {
 }
 
 
-export const addRound = (idMeme, idDidS, idDidC1, idDidC2, punteggio) => {
+export const addRound = (idMeme, idDidS, punteggio) => {
   return new Promise((resolve, reject) => {
-    const sql = `INSERT INTO round (idMeme, idDIDScelta, punteggio, idDidC1, idDidC2) VALUES (?, ?, ?, ?, ?)`;
-    db.run(sql, [idMeme, idDidS, punteggio, idDidC1, idDidC2], function(err) {
+    const sql = `INSERT INTO round (idMeme, idDIDScelta, punteggio) VALUES (?, ?, ?)`;
+    db.run(sql, [idMeme, idDidS, punteggio], function(err) {
       if (err)
         reject(err);
       else
@@ -211,7 +211,7 @@ export const getRound = (idRound) => {
       if (err)
         reject(err);
       else {
-        const round = new Round(row.id, row.idMeme, row.idDidScelta, row.punteggio, row.idDidC1, row.idDidC2);
+        const round = new Round(row.id, row.idMeme, row.idDidScelta, row.punteggio);
         resolve(round);
       }
     });
@@ -256,7 +256,7 @@ export const getRoundById = (id) => {
       if (err)
         reject(err);
       else {
-        const round = new Round(row.id, row.idMeme, row.idDIDScelta, row.punteggio, row.idDidC1, row.idDidC2);
+        const round = new Round(row.id, row.idMeme, row.idDIDScelta, row.punteggio);
         resolve(round);
       }
     });

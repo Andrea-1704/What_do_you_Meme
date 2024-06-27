@@ -162,9 +162,9 @@ function GameLoggedIn() {
           //per un meme quali erano esattamente le due mostrate. 
           //Questa cosa è evitabile!
           setFinito(true);//il gioco è finito
-          const round1 = await API.sendRound(meme[0].id, scelte[0], 0, 1);
-          const round2 = await API.sendRound(meme[1].id, scelte[1], 0, 1);
-          const round3 = await API.sendRound(meme[2].id, scelte[2], 0, 1);
+          const round1 = await API.sendRound(meme[0].id, scelte[0]);
+          const round2 = await API.sendRound(meme[1].id, scelte[1]);
+          const round3 = await API.sendRound(meme[2].id, scelte[2]);
           
           // Una volta che tutte le promesse sono risolte, invia i dati del gioco
           await API.sendGame(round1.associazioneId, round2.associazioneId, round3.associazioneId);

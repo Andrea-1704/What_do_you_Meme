@@ -249,7 +249,7 @@ app.post('/api/round', isLoggedIn, [
   check('idMeme').isNumeric(),
   check('idDid').isNumeric(),
 ], async (request, response) => {
-  const { idMeme, idDid, idDidCor1, idDidCor2 } = request.body;
+  const { idMeme, idDid } = request.body;
   try {
     let punteggio=0;
     if(idDid===-1){
@@ -259,7 +259,7 @@ app.post('/api/round', isLoggedIn, [
     else{
       punteggio = await getPunteggio(idMeme, idDid);
     }
-    const associazioneId = await addRound(idMeme, idDid, idDidCor1, idDidCor2, punteggio);
+    const associazioneId = await addRound(idMeme, idDid, punteggio);
     response.json({ associazioneId });
   } catch (err) {
     //console.error("Errore nell'aggiungere l'associazione:", err.message);

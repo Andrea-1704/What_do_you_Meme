@@ -47,10 +47,10 @@ function UserInfo() {
           const roundsWithMemes = await Promise.all(rounds.map(async (round) => {
             const meme = await getMemeById(round.idMeme);
             const didascaliaScelta = await API.getDidascaliaById(round.idDidScelta);
-            const didascaliaC1 = await API.getDidascaliaById(round.idDidC1);
-            const didascaliaC2 = await API.getDidascaliaById(round.idDidC2);
+            // const didascaliaC1 = await API.getDidascaliaById(round.idDidC1);
+            // const didascaliaC2 = await API.getDidascaliaById(round.idDidC2);
             //console.log("didascaliaScelta", didascaliaScelta);
-            return { ...round, meme, didascaliaScelta, didascaliaC1, didascaliaC2 };
+            return { ...round, meme, didascaliaScelta};
           }));
 
           //console.log("roundsWithMemes", roundsWithMemes);
@@ -62,7 +62,6 @@ function UserInfo() {
         setHistory(historyWithRounds);
         
         //console.log("user", user);
-        console.log("history", historyWithRounds);
       } catch (error) {
         setMessage({msg: error, type: 'danger'});
         

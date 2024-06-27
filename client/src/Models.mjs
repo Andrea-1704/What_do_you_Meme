@@ -16,12 +16,10 @@ function Game(id, idUser, idR1, idR2, idR3, punteggioTotale, date) {
   this.date = dayjs(date);
 }
 
-function Round(id, idMeme, idDidScelta, punteggio, idDidC1, idDidC2) {
+function Round(id, idMeme, idDidScelta, punteggio) {
     this.id = id;
     this.idMeme = idMeme;
     this.idDidScelta = idDidScelta;
-    this.idDidC1 = idDidC1;
-    this.idDidC2 = idDidC2;
     this.idPunteggio = punteggio;
 }
 
