@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { useEffect, useState } from 'react';
-import { Container, Row, Alert, Button } from 'react-bootstrap';
-import { Routes, Route, Outlet, Navigate, useNavigate } from 'react-router-dom';
+import {  useState } from 'react';
+import { Container,  Button } from 'react-bootstrap';
+import { Routes, Route, Outlet, Navigate } from 'react-router-dom';
 import { BrowserRouter as Router, Link, useLocation } from 'react-router-dom';
 import NavHeader from './components/NavHeader';
 import API from './API.mjs';
@@ -42,7 +42,7 @@ function LoggedButton(props) {
           <button>Play game</button>
         </Link>
         <span style={{ margin: '0 10px' }}>or</span>
-        <Link to="/game">
+        <Link to="/user">
           <button>My data</button>
         </Link>
         <span style={{ margin: '0 10px' }}>or</span>
@@ -75,7 +75,7 @@ function App() {
       UAN BELLA GRAFICA CHE GESTISCE QUELLO CHE VOGLIO FARE.
       */
       setUser(user);
-      navigate('/game');
+      navigate('/user');
     }catch(err) {
 
       throw err;
@@ -147,7 +147,7 @@ function App() {
             } />
           <Route path="/play" element={<RandomMeme />} /> {/* Add the route for RandomMeme */}
           <Route path="/risposta/:corretto" element={<Risposta />} /> {/* Add the route for Risposta */}
-          <Route path="/game" element={<LogInfo  loggedIn={loggedIn} handleLogout={handleLogout} playTheGame={playTheGame} />} />
+          <Route path="/user" element={<LogInfo  loggedIn={loggedIn} handleLogout={handleLogout} playTheGame={playTheGame} />} />
           <Route path="/loggedGame" element={<GameLoggedIn />} />
           
       </Route>

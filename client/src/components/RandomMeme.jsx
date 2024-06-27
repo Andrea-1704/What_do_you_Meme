@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import API from '../API.mjs';
-import { useNavigate } from 'react-router-dom';
 import './GameLoggedIn.css';  // Assicurati di creare un file CSS separato
 
 function RandomMeme() {
@@ -13,8 +12,6 @@ function RandomMeme() {
   const [message, setMessage] = useState('');
   const [sceltaErrata, setSceltaErrata] = useState(false);
   const [ricaricato, setRicaricato] = useState(false);
-
-  const navigate = useNavigate();
   
   useEffect(() => {
     const fetchMeme = async () => {
@@ -39,13 +36,14 @@ function RandomMeme() {
 
     if (timeRemaining <= 1) {
       clearInterval(intervalId);
-      setPunteggio(0);
+      //setPunteggio(0);
       
-      //setScelta1(-1);
+      setScelta(-1);
       if(!sceltaErrata){
         setSceltaErrata(-1);
       }
-      if(sceltaErrata===-1){
+      if(punteggio!=0){
+        setPunteggio(0);
         setMessage({ msg: `Tempo scaduto!`, type: 'danger' });
       }else{
         setMessage({ msg: `Risposta errata`, type: 'danger' });
@@ -84,19 +82,19 @@ function RandomMeme() {
     fetchDidascalie();
   }, [meme]);
 
-  const getButtonStyle = (didascaliaId) => {
-    let scelta, punteggio;
+  // const getButtonStyle = (didascaliaId) => {
+  //   let scelta, punteggio;
 
-    if (scelta === didascaliaId) {
-      if (punteggio === 0) {
-        return { backgroundColor: 'red', color: 'white' };
-      } else if (punteggio === 5) {
-        return { backgroundColor: 'green', color: 'white' };
-      }
-    }
+  //   if (scelta === didascaliaId) {
+  //     if (punteggio === 0) {
+  //       return { backgroundColor: 'red', color: 'white' };
+  //     } else if (punteggio === 5) {
+  //       return { backgroundColor: 'green', color: 'white' };
+  //     }
+  //   }
 
-    return {};
-  };
+  //   return {};
+  // };
 
 
   
@@ -215,7 +213,7 @@ function RandomMeme() {
                 <h2>Tempo rimasto: {timeRemaining} secondi</h2>
               )}
 
-              {(scelta) && (
+              {(scelta||scelta===-1) && (
                 <button 
                   style={{ backgroundColor: 'blue', color: 'white' }}
                   onClick={handlePlayAgain}

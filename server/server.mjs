@@ -263,7 +263,7 @@ app.post('/api/round', isLoggedIn, [
     response.json({ associazioneId });
   } catch (err) {
     //console.error("Errore nell'aggiungere l'associazione:", err.message);
-    response.status(500).json({ error: e.message});
+    response.status(500).json({ error: err.message});
   }
 });
 

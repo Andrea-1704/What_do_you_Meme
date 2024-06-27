@@ -45,7 +45,7 @@ function LoginForm(props) {
     </Col>
   </Row>
   )
-};
+}
 
 
 function LogoutButton(props) {
