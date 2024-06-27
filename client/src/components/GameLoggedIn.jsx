@@ -51,7 +51,7 @@ function GameLoggedIn() {
           }
         }
       } catch (err) {
-        setMessageErrore({ msg: err.msg, type: 'danger' });
+        setMessageErrore({ msg: "Errore nella ricezione del meme", type: 'danger' });
       }
     };
     fetchMeme();
@@ -115,7 +115,7 @@ function GameLoggedIn() {
           setRoundFinito(false);
         }
       } catch (err) {
-        setMessageErrore({ msg: err.message, type: 'danger' });
+        setMessageErrore({ msg: "errore nella ricezione delle didascalie", type: 'danger' });
       }
     };
 
@@ -148,7 +148,7 @@ function GameLoggedIn() {
         }
       }
     }catch (err) {
-      setMessageErrore({ msg: err.message, type: 'danger' });
+      setMessageErrore({ msg: "Errore del server", type: 'danger' });
     }
 
    
@@ -171,7 +171,7 @@ function GameLoggedIn() {
           await API.sendGame(round1.associazioneId, round2.associazioneId, round3.associazioneId);
         }
       } catch (err) {
-        setMessageErrore({ msg: err.error, type: 'danger' });
+        setMessageErrore({ msg: "errore nell'invio dei dati", type: 'danger' });
       }
     };
   

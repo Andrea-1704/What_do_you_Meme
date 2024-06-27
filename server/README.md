@@ -1,17 +1,8 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/J0Dv0VMM)
-# Exam #N: "What do you MEME"
-## Student: s327644 MIRENDA ANDREA 
+The `server` is the server-side app companion for What do you Meme. It presents some APIs to perform some CRUD operations.
 
-## React Client Application Routes
 
-- Route `/`: main page.  
-- Route `/login`: page that shows the login form
-- Route `/play`: Page that allows each user (logged in and not) to play to a single round game
-- Route `/risposta/:corretto`: Page that shows the message to the user that is playing in the single round game.
-- Route `/user`: Page that shows the user informations
-- Route `/loggedGame`: Page that allows to play for a logged-in player.
-
-## API Server
+## APIs
+Hereafter, we report the designed HTTP APIs, also implemented in the project.
 
 ### __Get a meme___
 URL: `/api/meme`
@@ -269,30 +260,3 @@ Response body:
   "associazioneId": 12345
 }
 ```
-
-
-## Database Tables
-
-- Table `Associazione` - contains id idDid idMeme
-- Table `Didascalia` - contains id didascalia
-- Table `Game` - contains id idR1 idR2 idR3 date idUser punteggioTotale
-- Table `Meme` - contains id nameUrl
-- Table `Round` - contains id idMeme idDidScelta punteggio
-- Table `User` - contains id name email password salt
-
-## Main React Components
-
-- `App` (in `App.jsx`): is the main page and defines all the routes of the application.
-- `UserInfo` (in `UserInfo.jsx`): allows to show the info of the logged in user, including the history of the played games.
-- `RandomMeme` (in `RandomMeme.jsx`): is the component that allows to play for a round.
-- `GameLoggedIn` (in `GameLoggedIn.jsx`): is the component that allows to a logged in player to play a game composed of 3 rounds.
-
-(only _main_ components, minor ones may be skipped)
-
-## Screenshot
-
-![Screenshot](./img/screenshot.jpg)
-
-## Users Credentials
-
-- luigi.derussis@polito.it, Password 

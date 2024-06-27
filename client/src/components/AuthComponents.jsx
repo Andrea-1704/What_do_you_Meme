@@ -15,7 +15,7 @@ function LoginForm(props) {
         // eslint-disable-next-line react/prop-types
         await props.login(credentials, navigate);
       } catch (err) {
-        setMessage({ msg:err, type: 'danger' });
+        setMessage({ msg:"errore nell'invio dei dati", type: 'danger' });
       }
 
       

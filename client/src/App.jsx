@@ -142,8 +142,8 @@ function App() {
               
               loggedIn ? <Navigate replace to='/' /> : <LoginForm login={handleLogin} />
             } />
-          <Route path="/play" element={<RandomMeme />} /> {/* Add the route for RandomMeme */}
-          <Route path="/risposta/:corretto" element={<Risposta />} /> {/* Add the route for Risposta */}
+          <Route path="/play" element={<RandomMeme />} /> 
+          <Route path="/risposta/:corretto" element={<Risposta />} /> 
           <Route path="/user" element={<LogInfo  loggedIn={loggedIn} handleLogout={handleLogout} playTheGame={playTheGame} />} />
           <Route path="/loggedGame" element={<GameLoggedIn />} />
           

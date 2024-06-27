@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Table, Alert } from 'react-bootstrap';
 import API from '../API.mjs';
 import dayjs from 'dayjs';
+import './GameLoggedIn.css'
 
 function UserInfo() {
   const [userInfo, setUserInfo] = useState(null);
@@ -101,13 +102,13 @@ function UserInfo() {
   const renderGameHistory = () => {
     return history.map((game) => (
       <React.Fragment key={game.id}>
-        <tr>
-          <td colSpan="2" className="game-header">
+        <tr className="game-header">
+          <td colSpan="2">
             Game ID: {game.id} - Date: {dayjs(game.date).format('YYYY-MM-DD')}
           </td>
         </tr>
         {game.rounds.map((round) => (
-          <tr key={round.id}>
+          <tr key={round.id} className={`game-row game-row-${round.id%3}`}>
             <td className="compact-cell">
               <img
                 src={`${round.meme.path}`}
@@ -132,12 +133,13 @@ function UserInfo() {
         ) : (
           <>
             <Col xs={12}>
+            <h2>Informazioni personali</h2>
               <p>Name: {userInfo.name}</p>
               <p>Email: {userInfo.username}</p>
             </Col>
             <Row>
               <Col xs={12}>
-                <h2>Game History</h2>
+                <h2>Cronologia</h2>
                 <Table striped bordered hover>
                   <thead>
                     <tr>

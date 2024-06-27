@@ -265,7 +265,6 @@ export const createMeme = (meme) => {
     const sql = `INSERT INTO meme (nameUrl) VALUES (?)`;
     db.run(sql, [meme.path], function(err) {
       if (err) {
-        console.error("Errore durante l'inserimento nel database:", err.message);
         reject(err);
       } else {
         resolve(this.lastID);
@@ -280,7 +279,6 @@ export const addDidascalia = (didascalia) => {
     const sql = `INSERT INTO didascalia (didascalia) VALUES (?)`;
     db.run(sql, [didascalia], function(err) {
       if (err) {
-        console.error("Errore durante l'inserimento nel database:", err.message);
         reject(err);
       } else {
         resolve(this.lastID);
@@ -295,8 +293,7 @@ export const addAssociazione = (idMeme, idDid) => {
     const sql = `INSERT INTO associazione (idMeme, idDid) VALUES (?, ?)`;
     db.run(sql, [idMeme, idDid], function(err) {
       if (err) {
-        console.error("Errore durante l'inserimento nel database:", err.message);
-        reject(err);
+       reject(err);
       } else {
         resolve(this.lastID);
       }

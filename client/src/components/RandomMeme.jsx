@@ -219,7 +219,7 @@ function RandomMeme() {
                     ))}
                   </div>
                 </div>
-                <div>
+                <div className="play-again-container">
                   {(scelta || scelta === -1) && (
                     <button
                       style={{ backgroundColor: 'blue', color: 'white' }}
@@ -244,6 +244,8 @@ function RandomMeme() {
         )}
       </div>
     );
+    
+    
     
   }
 
