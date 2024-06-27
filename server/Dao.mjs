@@ -73,6 +73,7 @@ export const getCorrectDid = (idMeme) => {
                    FROM Associazione 
                    JOIN Didascalia ON Associazione.idDid = Didascalia.id 
                    WHERE Associazione.idMeme = ?
+                   ORDER BY RANDOM()
                    LIMIT 2`;
       db.all(sql, [idMeme], (err, rows) => {
         if (err) {
@@ -96,7 +97,9 @@ export const getCorrectDid = (idMeme) => {
                      SELECT Associazione.idDid 
                      FROM Associazione 
                      WHERE Associazione.idMeme = ?
-                   )`;
+                   )
+                   ORDER BY RANDOM() 
+                   LIMIT 5`;
       db.all(sql, [idMeme], (err, rows) => {
         if (err) {
           reject(err);
@@ -109,6 +112,7 @@ export const getCorrectDid = (idMeme) => {
       });
     });
   }
+  
   
 /** GIOCO **/
 //registra un gioco
@@ -160,7 +164,7 @@ export const getPunteggio = (idMeme, idDid) => {
       const sql = `SELECT * FROM Associazione WHERE idMeme = ? AND idDid = ?`;
       db.get(sql, [idMeme, idDid], (err, row) => {
         if (err) {
-          reject(err);
+          reject(402);
         } else {
           if (row) {
             resolve(5);

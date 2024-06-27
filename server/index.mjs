@@ -261,52 +261,52 @@ async (request, response) => {
 
 
 
-//metodi per riesmpire il database:
-//SONO SOLAMENTE METODI DI UTILITA'
-// POST /api/meme
-app.post('/api/meme', (request, response) => {
-  const meme = request.body;
-  createMeme(meme)
-  .then(questions => response.json(questions))
-  .catch((err) => response.status(500).json({ error: err.message}));
-})
+// //metodi per riesmpire il database:
+// //SONO SOLAMENTE METODI DI UTILITA'
+// // POST /api/meme
+// app.post('/api/meme', (request, response) => {
+//   const meme = request.body;
+//   createMeme(meme)
+//   .then(questions => response.json(questions))
+//   .catch((err) => response.status(500).json({ error: err.message}));
+// })
 
-app.post('/api/didascalie', (request, response) => {
-  const didascalia = request.body;
-  addDidascalia(didascalia.didascalia)
-  .then(questions => response.json(questions))
-  .catch((err) => response.status(500).json({ error: err.message}));
-})
+// app.post('/api/didascalie', (request, response) => {
+//   const didascalia = request.body;
+//   addDidascalia(didascalia.didascalia)
+//   .then(questions => response.json(questions))
+//   .catch((err) => response.status(500).json({ error: err.message}));
+// })
 
-//metodo post per aggiungere associazione tra meme e didascalia
-app.post('/api/associazione', (request, response) => {
-  const { idMeme, idDid } = request.body;
-  addAssociazione(idMeme, idDid)
-    .then(associazioneId => response.json({ associazioneId }))
-    .catch((err) => {
-      //console.error("Errore nell'aggiungere l'associazione:", err.message);
-      response.status(500).json({ error: err.message});
-    });
-});
+// //metodo post per aggiungere associazione tra meme e didascalia
+// app.post('/api/associazione', (request, response) => {
+//   const { idMeme, idDid } = request.body;
+//   addAssociazione(idMeme, idDid)
+//     .then(associazioneId => response.json({ associazioneId }))
+//     .catch((err) => {
+//       //console.error("Errore nell'aggiungere l'associazione:", err.message);
+//       response.status(500).json({ error: err.message});
+//     });
+// });
 
-//metodo post per CREARE un nuovo utente
-app.post('/api/users', (request, response) => {
-  const { nome, cognome, email, password, sale } = request.body;
-  new Promise((resolve, reject) => {
-    crypto.scrypt(password, sale, 32, (err, hashedPass) => {
-      if (err) reject(err);
-      else resolve(hashedPass.toString('hex'));
-    });
-  })
-  .then(hashedPass => {
-    return createUser(nome, cognome, email, hashedPass, sale);
-  })
-  .then(user => response.json(user))
-  .catch((err) => {
-    //console.error(err);  // Stampa l'errore nel console del server
-    response.status(500).json({ error: err.message});
-  });
-});
+// //metodo post per CREARE un nuovo utente
+// app.post('/api/users', (request, response) => {
+//   const { nome, cognome, email, password, sale } = request.body;
+//   new Promise((resolve, reject) => {
+//     crypto.scrypt(password, sale, 32, (err, hashedPass) => {
+//       if (err) reject(err);
+//       else resolve(hashedPass.toString('hex'));
+//     });
+//   })
+//   .then(hashedPass => {
+//     return createUser(nome, cognome, email, hashedPass, sale);
+//   })
+//   .then(user => response.json(user))
+//   .catch((err) => {
+//     //console.error(err);  // Stampa l'errore nel console del server
+//     response.status(500).json({ error: err.message});
+//   });
+// });
 
 
 

@@ -7,7 +7,6 @@
 - Route `/`: main page.  
 - Route `/login`: page that shows the login form
 - Route `/play`: Page that allows each user (logged in and not) to play to a single round game
-- Route `/risposta/:corretto`: Page that shows the message to the user that is playing in the single round game.
 - Route `/user`: Page that shows the user informations
 - Route `/loggedGame`: Page that allows to play for a logged-in player.
 
@@ -199,10 +198,10 @@ Response:
 Response body :
 ```
 {
-  "id": "5f8e48e6a0542f001c5f7a26",
-  "username": "username",
-  "email": "user@example.com",
-  "createdAt": "2024-06-27T12:00:00Z"
+  "id": 5,
+  "nome": "username",
+  "cognome": "cognome",
+  "email": "user@example.com"
 }
 ```
 
@@ -291,8 +290,10 @@ Response body:
 
 ## Screenshot
 
-![Screenshot](./img/screenshot.jpg)
+![Screenshot1](../esame_AW1/client/public/screenshot1.jpg)
+![Screenshot2](../esame_AW1/client/public/screenshot2.jpg)
 
 ## Users Credentials
 
 - luigi.derussis@polito.it, Password 
+- s327644@studenti.polito.it, Password

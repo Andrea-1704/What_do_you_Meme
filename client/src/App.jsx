@@ -9,7 +9,6 @@ import API from './API.mjs';
 import { LoginForm } from './components/AuthComponents';
 import LogInfo from './components/LogInfo';
 import RandomMeme from './components/RandomMeme';
-import Risposta from './components/Risposta';
 import GameLoggedIn from './components/GameLoggedIn';
 
 function HomeButtons() {
@@ -44,6 +43,10 @@ function LoggedButton(props) {
         <span style={{ margin: '0 10px' }}>or</span>
         <Link to="/user">
           <button>My data</button>
+        </Link>
+        <span style={{ margin: '0 10px' }}>or</span>
+        <Link to="/play">
+          <button>Single Round game</button>
         </Link>
         <span style={{ margin: '0 10px' }}>or</span>
         <Button onClick={props.handleLogout}>Logout</Button>
@@ -143,7 +146,6 @@ function App() {
               loggedIn ? <Navigate replace to='/' /> : <LoginForm login={handleLogin} />
             } />
           <Route path="/play" element={<RandomMeme />} /> 
-          <Route path="/risposta/:corretto" element={<Risposta />} /> 
           <Route path="/user" element={<LogInfo  loggedIn={loggedIn} handleLogout={handleLogout} playTheGame={playTheGame} />} />
           <Route path="/loggedGame" element={<GameLoggedIn />} />
           
