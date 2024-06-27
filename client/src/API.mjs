@@ -50,7 +50,6 @@ const getUserInfo = async () => {
   const response = await fetch(SERVER_URL + '/api/sessions/current', {
     credentials: 'include',
   });
-  console.log("response error logout", response)
   const user = await response.json();
   if (response.ok) {
     return user;
@@ -73,6 +72,10 @@ const logOut = async() => {
   // })
   // .then(handleInvalidResponse)
   // .then((response) => response.json());
+  else {
+    const errDetails = await response.text();
+    throw errDetails;
+  }
 }
 
 const fetchMeme = async () => {
@@ -90,7 +93,6 @@ const fetchMeme = async () => {
 };
 
 const fetchDidascalieScorrette = async (memeId) => {
-  console.log("didascalie scorrette", memeId);
   const response = await fetch(SERVER_URL + `/api/meme/${memeId}/uncorrect`);
     if (!response.ok) {
       throw new Error('Failed to fetch didascalie');
@@ -100,7 +102,6 @@ const fetchDidascalieScorrette = async (memeId) => {
   
 };
 const fetchDidascalieCorrette = async (memeId) => {
-  console.log("didascalie corrette", memeId);
   const response = await fetch(SERVER_URL + `/api/meme/${memeId}/correct`);
     if (!response.ok) {
       throw new Error('Failed to fetch didascalie');

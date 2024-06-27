@@ -4,10 +4,9 @@ import { Link } from 'react-router-dom';
 
 function Risposta() {
   let { corretto } = useParams(); // Estrae il parametro corretto dall'oggetto useParams
-  console.log(corretto);
+
   
   const isCorrect = parseInt(corretto, 10); // Converte il parametro in un numero intero
-  console.log(isCorrect); // Aggiungi questa riga per verificare il valore di isCorrect
 
   return (
     <div style={{ textAlign: 'center', padding: '20px' }}>

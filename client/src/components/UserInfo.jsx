@@ -11,24 +11,40 @@ function UserInfo() {
   
 
   const getUserInfo = async () => {
-    return await API.getUserInfo();
+    try {
+      return await API.getUserInfo();
+    } catch (error) {
+      setMessage({ msg: "Non autorizzato" || 'Errore sconosciuto', type: 'danger' });
+  }
   };
 
   const getHistory = async () => {
-    return await API.getHistory();
+    try {
+      return await API.getHistory();
+    } catch (error) {
+      setMessage({ msg: "Non autorizzato" || 'Errore sconosciuto', type: 'danger' });
+  }
     
   };
 
   const getRoundById = async (id) => {
-    return await API.getRoundById(id);
+    try {
+      return await API.getRoundById(id);
+    }
+    catch (error) {
+      setMessage({ msg: "Non autorizzato" || 'Errore sconosciuto', type: 'danger' });
+  }
   };
 
   const getMemeById = async (id) => {
-    return await API.getMemeById(id);
+    try {
+      return await API.getMemeById(id);
+    } catch (error) {
+      setMessage({ msg: "Non autorizzato" || 'Errore sconosciuto', type: 'danger' });
+  }
   };
 
   useEffect(() => {
-    //console.log("history", history);
     const fetchUserInfo = async () => {
       try {
         const user = await getUserInfo();
@@ -42,18 +58,15 @@ function UserInfo() {
             getRoundById(game.idR3),
           ]);
 
-          //console.log("rounds", rounds);
           // Get meme details for each round
           const roundsWithMemes = await Promise.all(rounds.map(async (round) => {
             const meme = await getMemeById(round.idMeme);
             const didascaliaScelta = await API.getDidascaliaById(round.idDidScelta);
             // const didascaliaC1 = await API.getDidascaliaById(round.idDidC1);
             // const didascaliaC2 = await API.getDidascaliaById(round.idDidC2);
-            //console.log("didascaliaScelta", didascaliaScelta);
             return { ...round, meme, didascaliaScelta};
           }));
 
-          //console.log("roundsWithMemes", roundsWithMemes);
 
           return { ...game, rounds: roundsWithMemes };
         }));
@@ -61,18 +74,28 @@ function UserInfo() {
         setUserInfo(user);
         setHistory(historyWithRounds);
         
-        //console.log("user", user);
       } catch (error) {
-        setMessage({msg: error, type: 'danger'});
-        
+        setMessage({ msg: "Non autorizzato" || 'Errore sconosciuto', type: 'danger' });
+   
       }
     };
 
     fetchUserInfo();
   }, []);
 
-  if (!userInfo) {
-    return <div>Loading...</div>;
+  if (!userInfo ) {
+    return (
+    <>
+        {message ? (
+          <Alert variant="danger" onClose={() => setMessage('')} dismissible>{message.msg}</Alert>
+        ) : (
+          <>
+            <div>Loading...</div>
+          </>
+        )}
+    </>
+    );
+  
   }
 
   const renderGameHistory = () => {
@@ -101,34 +124,39 @@ function UserInfo() {
 
   return (
     <Container fluid>
-      
       <Row>
-        {message && <Row>
-        <Alert variant={message.type} onClose={() => setMessage('')} dismissible>{message.msg}</Alert>
-        </Row> }
-        <Col xs={12}>
-          <p>Name: {userInfo.name}</p>
-          <p>Email: {userInfo.username}</p>
-        </Col>
-      </Row>
-      <Row>
-        <Col xs={12}>
-          <h2>Game History</h2>
-          <Table striped bordered hover>
-            <thead>
-              <tr>
-                <th>Meme</th>
-                <th>Score</th>
-              </tr>
-            </thead>
-            <tbody>
-              {renderGameHistory()}
-            </tbody>
-          </Table>
-        </Col>
+        {message ? (
+          <Row>
+            <Alert variant={message.type} onClose={() => setMessage('')} dismissible>{message.msg}</Alert>
+          </Row>
+        ) : (
+          <>
+            <Col xs={12}>
+              <p>Name: {userInfo.name}</p>
+              <p>Email: {userInfo.username}</p>
+            </Col>
+            <Row>
+              <Col xs={12}>
+                <h2>Game History</h2>
+                <Table striped bordered hover>
+                  <thead>
+                    <tr>
+                      <th>Meme</th>
+                      <th>Score</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {renderGameHistory()}
+                  </tbody>
+                </Table>
+              </Col>
+            </Row>
+          </>
+        )}
       </Row>
     </Container>
   );
+  
 }
 
 export default UserInfo;

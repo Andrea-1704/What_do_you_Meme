@@ -6,7 +6,6 @@ import crypto from 'crypto';
 //FACCIO IL LOGIN E CERCA L'UTENTE IN BASE ALLA EMAIL.
 export const getUser = (email, password) => {
   return new Promise((resolve, reject) => {
-    console.log("query")
     const sql = 'SELECT * FROM user WHERE email = ?';
     
     db.get(sql, [email], (err, row) => {

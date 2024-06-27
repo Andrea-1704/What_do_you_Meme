@@ -17,6 +17,7 @@ function GameLoggedIn() {
   const [timeRemaining, setTimeRemaining] = useState(30); 
   const [riprova, setRiprova] = useState(0);
   const [message, setMessage] = useState('');
+  const [messageErrore, setMessageErrore] = useState('');//variabile che mi serve per memorizzare il messaggio di errore
   const [finito, setFinito] = useState(false);
   const [roundFinito, setRoundFinito]= useState(false);
   //il round finito è true solo quando mostro i risultati di fine round
@@ -50,7 +51,7 @@ function GameLoggedIn() {
           }
         }
       } catch (err) {
-        setMessage({ msg: err.message, type: 'danger' });
+        setMessageErrore({ msg: err.msg, type: 'danger' });
       }
     };
     fetchMeme();
@@ -114,7 +115,7 @@ function GameLoggedIn() {
           setRoundFinito(false);
         }
       } catch (err) {
-        setMessage({ msg: err.message, type: 'danger' });
+        setMessageErrore({ msg: err.message, type: 'danger' });
       }
     };
 
@@ -147,7 +148,7 @@ function GameLoggedIn() {
         }
       }
     }catch (err) {
-      setMessage({ msg: err.message, type: 'danger' });
+      setMessageErrore({ msg: err.message, type: 'danger' });
     }
 
    
@@ -170,7 +171,7 @@ function GameLoggedIn() {
           await API.sendGame(round1.associazioneId, round2.associazioneId, round3.associazioneId);
         }
       } catch (err) {
-        setMessage({ msg: err.message, type: 'danger' });
+        setMessageErrore({ msg: err.error, type: 'danger' });
       }
     };
   
@@ -234,6 +235,7 @@ function GameLoggedIn() {
       setDidCorrette([]);
       setScelte([null, null, null]);
       setRoundFinito(false);
+      setMessageErrore('');
       
     };
 
@@ -305,7 +307,12 @@ function GameLoggedIn() {
   if (round > 2&&scelte[2]&&roundFinito===false) {
     return (
       <div className="game-container">
-        {message && <div>
+
+        {messageErrore ? (
+          <Alert variant="danger" onClose={() => setMessageErrore('')} dismissible>{messageErrore.msg}</Alert>
+        ) : (
+          <>
+            {message && <div>
           <Alert variant={message.type} onClose={() => setMessage('')} dismissible>{message.msg}</Alert>
         </div> }
         <div>
@@ -316,16 +323,27 @@ function GameLoggedIn() {
           
         </div>
         {renderFinalResults()}
+          </>
+        )}
+
+
+        
       </div>
     );
   }
 
   
   //pagina di caricamento:
-  if (round===0||!meme[round-1]) {
+  if (round === 0 || !meme[round - 1]) {
     return (
       <div className="game-container">
-        <div>Loading...</div>
+        {messageErrore ? (
+          <Alert variant="danger" onClose={() => setMessageErrore('')} dismissible>{messageErrore.msg}</Alert>
+        ) : (
+          <>
+            <div>Loading...</div>
+          </>
+        )}
       </div>
     );
   }
@@ -334,44 +352,43 @@ function GameLoggedIn() {
 
   return (
     <div className="game-container">
-       {message && 
+      {messageErrore ? (
+        <Alert variant="danger" onClose={() => setMessageErrore('')} dismissible>{messageErrore.msg}</Alert>
+      ) : (
+        <>
+          {message && (
             <Alert variant={message.type} onClose={() => setMessage('')} dismissible>{message.msg}</Alert>
-       }
-    
-    <div>
-    <h1>Round {round} di 3</h1>
-    {!(roundFinito) && (
-    <h2>Tempo rimasto: {timeRemaining} secondi</h2>
-  )}
-    
-    <img className="meme-image" src={meme[round-1].path} alt="current meme" />
-  </div>
-  <div className="buttons-container">
-  
-    {(didascalie[round-1])&&didascalie[round-1].map((didascalia) => (
-      <button
-        key={didascalia.id}
-        className={getClasseButton(didascalia.id)}
-        onClick={() => gestisciDidClick(didascalia.id)}
-      >
-        {didascalia.testo}
-      </button>
-    ))}
-  </div>
-  <div>
-    
-    {/* Condizione per mostrare il pulsante se sceltaErrata è true */}
-    {(roundFinito) && (
-      <button onClick={handleNextButton}>Next</button>
-    )}
-  </div>
-  {message && (
-    <div className={`message ${message.type}`}>
-      {message.msg}
+          )}
+      
+          <div>
+            <h1>Round {round} di 3</h1>
+            {!roundFinito && (
+              <h2>Tempo rimasto: {timeRemaining} secondi</h2>
+            )}
+      
+            <img className="meme-image" src={meme[round-1].path} alt="current meme" />
+          </div>
+          <div className="buttons-container">
+            {didascalie[round-1] && didascalie[round-1].map((didascalia) => (
+              <button
+                key={didascalia.id}
+                className={getClasseButton(didascalia.id)}
+                onClick={() => gestisciDidClick(didascalia.id)}
+              >
+                {didascalia.testo}
+              </button>
+            ))}
+          </div>
+          <div>
+            {roundFinito && (
+              <button onClick={handleNextButton}>Next</button>
+            )}
+          </div>
+        </>
+      )}
     </div>
-  )}
-</div>
   );
+  
 }
 
 export default GameLoggedIn;

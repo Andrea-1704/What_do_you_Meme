@@ -77,7 +77,6 @@ function App() {
       setUser(user);
       navigate('/user');
     }catch(err) {
-
       throw err;
       /*
       NOTA BENE: QUESTO TI PERMETTE DI AVERE LA 
@@ -93,9 +92,7 @@ function App() {
 
 
   const handleLogout = async (navigate) => {
-    console.log("dentro il metodo");
     await API.logOut();
-    console.log("dopo il metodo")
     setLoggedIn(false);
     // clean up everything
     setMessage('Logged out successfully!');

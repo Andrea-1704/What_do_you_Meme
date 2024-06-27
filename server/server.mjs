@@ -38,7 +38,6 @@ app.use(cors(corsOptions));
 
 // Passport: set up local strategy -- NEW
 passport.use(new LocalStrategy(async function verify(username, password, cb) {
-  console.log("verify:", username, password);
   const user = await getUser(username, password);
   //NOTAMOLTO BENE: QUESTO E' IL METODO CHE VIENE CHIAMATO QUANDO 
   //VERIFICHIAMO IL LOGIN
@@ -106,16 +105,15 @@ app.use(passport.authenticate('session'));
 app.get('/api/meme', (request, response) => {
   getAMeme()
   .then(meme => response.json(meme))
-  .catch(() => response.status(500).end());
+  .catch((err) => response.status(500).json({ error: err.message}));
 })
 
 //metodo per ottenere il punteggio della scelta:
 //GET /api/meme/:idM/didascalia/:idD
 app.get('/api/meme/:idM/didascalia/:idd', (request, response) => {
-  console.log("chiamata rest", request.params.idM, request.params.idd)
   getPunteggio(request.params.idM, request.params.idd)
   .then(did => response.json(did))
-  .catch(() => response.status(500).end());
+  .catch((err) => response.status(500).json({ error: err.message}));
 })
 
 //metodo per ottenere un round dato il suo id:
@@ -123,7 +121,7 @@ app.get('/api/meme/:idM/didascalia/:idd', (request, response) => {
 app.get('/api/round/:id', (request, response) => {
   getRoundById(request.params.id)
   .then(round => response.json(round))
-  .catch(() => response.status(500).end());
+  .catch((err) => response.status(500).json({ error: err.message}));
 })
 
 //metodo per ottenere un meme dato il suo id:
@@ -131,7 +129,7 @@ app.get('/api/round/:id', (request, response) => {
 app.get('/api/meme/:id', (request, response) => {
   getMemeById(request.params.id)
   .then(meme => response.json(meme))
-  .catch(() => response.status(500).end());
+  .catch((err) => response.status(500).json({ error: err.message}));
 })
 
 //metodo per ottenere lo storico dei punteggi dell'utente:
@@ -142,15 +140,14 @@ app.get('/api/meme/:id', (request, response) => {
 app.get('/api/meme/:id/correct', (request, response) => {
   getCorrectDid(request.params.id)
   .then(did => response.json(did))
-  .catch(() => response.status(500).end());
+  .catch((err) => response.status(500).json({ error: err.message}));
 })
 
 //metodo per ottenere la storia dell'utente delle precedenti risposte
 app.get('/api/history', (request, response) => {
-  //console.log("chiamata rest history", request.user.id)
   getHistory(request.user.id)
   .then(history => response.json(history))
-  .catch(() => response.status(500).end());
+  .catch((err) => response.status(500).json({ error: err.message}));
 })
 
 
@@ -158,17 +155,16 @@ app.get('/api/history', (request, response) => {
 //un meme:
 
 app.get('/api/meme/:id/uncorrect', (request, response) => {
-  console.log("chiamata rest")
   getUncorrectDid(request.params.id)
   .then(did => response.json(did))
-  .catch(() => response.status(500).end());
+  .catch((err) => response.status(500).json({ error: err.message}));
 })
 
 //metodo per ricevere la didascalia dall'id
 app.get('/api/didascalia/:id', (request, response) => {
   getDidascaliaById(request.params.id)
   .then(didascalia => response.json(didascalia))
-  .catch(() => response.status(500).end());
+  .catch((err) => response.status(500).json({ error: err.message}));
 })
 
 app.post('/api/sessions', function(req, res, next) {
@@ -222,15 +218,14 @@ app.post('/api/meme', (request, response) => {
   const meme = request.body;
   createMeme(meme)
   .then(questions => response.json(questions))
-  .catch(() => response.status(500).end());
+  .catch((err) => response.status(500).json({ error: err.message}));
 })
 
 app.post('/api/didascalie', (request, response) => {
-  console.log(request.body)
   const didascalia = request.body;
   addDidascalia(didascalia.didascalia)
   .then(questions => response.json(questions))
-  .catch(() => response.status(500).end());
+  .catch((err) => response.status(500).json({ error: err.message}));
 })
 
 //metodo post per aggiungere associazione tra meme e didascalia
@@ -239,8 +234,8 @@ app.post('/api/associazione', (request, response) => {
   addAssociazione(idMeme, idDid)
     .then(associazioneId => response.json({ associazioneId }))
     .catch((err) => {
-      console.error("Errore nell'aggiungere l'associazione:", err.message);
-      response.status(500).end();
+      //console.error("Errore nell'aggiungere l'associazione:", err.message);
+      response.status(500).json({ error: err.message});
     });
 });
 
@@ -276,12 +271,11 @@ app.post('/api/game', isLoggedIn, [
 async (request, response) => {
     const idUser=request.user.id;
     const { idR1, idR2, idR3 } = request.body;
-    console.log("tutti i dati dentro server" , idUser, idR1, idR2, idR3)
     addGame(idUser, idR1, idR2, idR3)
       .then(associazioneId => response.json({ associazioneId }))
       .catch((err) => {
-        console.error("Errore nell'aggiungere l'associazione:", err.message);
-        response.status(500).end();
+        //console.error("Errore nell'aggiungere l'associazione:", err.message);
+        response.status(500).json({ error: err.message});
       });
     
   });
@@ -299,17 +293,16 @@ app.post('/api/users', (request, response) => {
     });
   })
   .then(hashedPass => {
-    console.log("hashedPass:", hashedPass)
     return createUser(nome, cognome, email, hashedPass, sale);
   })
   .then(user => response.json(user))
   .catch((err) => {
-    console.error(err);  // Stampa l'errore nel console del server
-    response.status(500).end();
+    //console.error(err);  // Stampa l'errore nel console del server
+    response.status(500).json({ error: err.message});
   });
 });
 
 
 
 // far partire il server
-app.listen(port, () => { console.log('API server started'); });
+app.listen(port, () => {  });

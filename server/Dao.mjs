@@ -21,7 +21,6 @@ export const getAMeme = () => {
         if (rows.length > 0) {
           const row = rows[0];
           const meme = new Meme(row.id, row.nameUrl);
-          console.log(meme.path)
           resolve(meme);
         } else {
           resolve(null);  // Nessun meme trovato
@@ -81,7 +80,6 @@ export const getCorrectDid = (idMeme) => {
         } else if (rows.length < 2) {
           resolve({error: "Non ci sono abbastanza didascalie per questo meme."});
         } else {
-          console.log(rows);
           const didascalie = rows.map(row => new Didascalia(row.id, row.didascalia));
           resolve(didascalie);
         }
@@ -91,7 +89,6 @@ export const getCorrectDid = (idMeme) => {
 
   //ottieni 5 didascalie scorrette per il meme
   export const getUncorrectDid = (idMeme) => {
-    console.log("dao")
     return new Promise((resolve, reject) => {
       const sql = `SELECT Didascalia.id, Didascalia.didascalia 
                    FROM Didascalia 
@@ -135,7 +132,6 @@ export const addGame = async (idUser, idR1, idR2, idR3) => {
     const punteggioR1= await getPunteggioRound(idR1);
     const punteggioR2= await getPunteggioRound(idR2);
     const punteggioR3= await getPunteggioRound(idR3);
-    console.log("punteggi", punteggioR1.punteggio, punteggioR2.punteggio, punteggioR3.punteggio)
     const punteggioTotale=punteggioR1.punteggio+punteggioR2.punteggio+punteggioR3.punteggio;
     const currentDate = new Date().toISOString(); // Ritorna la data in formato ISO 8601
     // Inserisci i dati nel database
@@ -178,7 +174,6 @@ export const getPunteggio = (idMeme, idDid) => {
   
 //crea un  utente:
 export const createUser = (nome, cognome, mail, password, sale) => {
-  console.log(nome, cognome, mail, password, sale)
   return new Promise((resolve, reject) => {
     const sql = `INSERT INTO user (Nome, Cognome, email, password, sale) VALUES (?, ?, ?, ?, ?)`;
     db.run(sql, [nome, cognome, mail, password, sale], function(err) {
@@ -269,12 +264,10 @@ export const createMeme = (meme) => {
   return new Promise((resolve, reject) => {
     const sql = `INSERT INTO meme (nameUrl) VALUES (?)`;
     db.run(sql, [meme.path], function(err) {
-      console.log("meme.path:", meme.path);
       if (err) {
         console.error("Errore durante l'inserimento nel database:", err.message);
         reject(err);
       } else {
-        console.log("Inserimento riuscito, ID del meme:", this.lastID);
         resolve(this.lastID);
       }
     });
@@ -290,7 +283,6 @@ export const addDidascalia = (didascalia) => {
         console.error("Errore durante l'inserimento nel database:", err.message);
         reject(err);
       } else {
-        console.log("Inserimento riuscito, ID della didascalia:", this.lastID);
         resolve(this.lastID);
       }
     });
@@ -301,13 +293,11 @@ export const addDidascalia = (didascalia) => {
 export const addAssociazione = (idMeme, idDid) => {
   return new Promise((resolve, reject) => {
     const sql = `INSERT INTO associazione (idMeme, idDid) VALUES (?, ?)`;
-    console.log("idMeme:", idMeme, "idDid:", idDid);
     db.run(sql, [idMeme, idDid], function(err) {
       if (err) {
         console.error("Errore durante l'inserimento nel database:", err.message);
         reject(err);
       } else {
-        console.log("Inserimento riuscito, ID dell'associazione:", this.lastID);
         resolve(this.lastID);
       }
     });

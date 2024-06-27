@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import API from '../API.mjs';
+import { Alert } from 'react-bootstrap';
 import './GameLoggedIn.css';  // Assicurati di creare un file CSS separato
 
 function RandomMeme() {
@@ -11,6 +12,7 @@ function RandomMeme() {
   const [timeRemaining, setTimeRemaining] = useState(30); 
   const [message, setMessage] = useState('');
   const [sceltaErrata, setSceltaErrata] = useState(false);
+  const [errorMessage, setErrorMessage]=useState('');
   const [ricaricato, setRicaricato] = useState(false);
   
   useEffect(() => {
@@ -20,7 +22,7 @@ function RandomMeme() {
           setMessage('');
           setMeme(memeData);
       } catch (err) {
-        setMessage({ msg: err.message, type: 'danger' });
+        setErrorMessage({ msg: "errore nel caricamento del meme", type: 'danger' });
       }
     };
     fetchMeme();
@@ -74,7 +76,7 @@ function RandomMeme() {
             setDidascalie(shuffledDidascalie);
             setTimeRemaining(30);
           } catch (err) {
-            setMessage({ msg: err.message, type: 'danger' });
+            setErrorMessage({ msg: err.message, type: 'danger' });
           }
         }
     };
@@ -118,7 +120,7 @@ function RandomMeme() {
         }
       }
     } catch (err) {
-      setMessage({ msg: err.message, type: 'danger' });
+      setErrorMessage({ msg: err.message, type: 'danger' });
     }
   };
 
@@ -133,7 +135,7 @@ function RandomMeme() {
         return false;
       }
       catch(err){
-        setMessage({ msg: err.message, type: 'danger' });
+        setErrorMessage({ msg: err.message, type: 'danger' });
       }
   }
 
@@ -192,50 +194,57 @@ function RandomMeme() {
   // }else{
     return (
       <div className="game-container">
-        {(meme) ? (
+        {errorMessage ? (
+          <Alert variant="danger" onClose={() => setErrorMessage('')} dismissible>{errorMessage.msg}</Alert>
+        ) : (
           <>
-            <div>
-              <img className="meme-image" src={meme.path} alt="current meme" />
-            </div>
-            <div className="buttons-container">
-              {didascalie.map((didascalia) => (
-                <button
-                  key={didascalia.id}
-                  className={getClasseButton(didascalia.id)}
-                  onClick={() => gestisciDidClick(didascalia.id)}
-                >
-                  {didascalia.testo}
-                </button>
-              ))}
-            </div>
-            <div>
-              {(!scelta) && (
-                <h2>Tempo rimasto: {timeRemaining} secondi</h2>
-              )}
-
-              {(scelta||scelta===-1) && (
-                <button 
-                  style={{ backgroundColor: 'blue', color: 'white' }}
-                  onClick={handlePlayAgain}
-                >Play again</button>
-              )}
-              
-              {/* Condizione per mostrare il pulsante se sceltaErrata è true */}
-              {/* {(sceltaErrata || sceltaErrata === -1) && (
-                <button onClick={handleSceltaErrataClick}>Next</button>
-              )} */}
-            </div>
-            {message && (
-              <div className={`message ${message.type}`}>
-                {message.msg}
-              </div>
+            {meme ? (
+              <>
+                <div className="meme-and-buttons">
+                  <div className="meme-container">
+                    {(!scelta) && (
+                      <h2>Tempo rimasto: {timeRemaining} secondi</h2>
+                    )}
+                    <img className="meme-image" src={meme.path} alt="current meme" />
+                  </div>
+                  <div className="buttons-container">
+                    {didascalie.map((didascalia) => (
+                      <button
+                        key={didascalia.id}
+                        className={getClasseButton(didascalia.id)}
+                        onClick={() => gestisciDidClick(didascalia.id)}
+                      >
+                        {didascalia.testo}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  {(scelta || scelta === -1) && (
+                    <button
+                      style={{ backgroundColor: 'blue', color: 'white' }}
+                      onClick={handlePlayAgain}
+                    >Play again</button>
+                  )}
+                  {/* Condizione per mostrare il pulsante se sceltaErrata è true */}
+                  {/* {(sceltaErrata || sceltaErrata === -1) && (
+                    <button onClick={handleSceltaErrataClick}>Next</button>
+                  )} */}
+                </div>
+                {message && (
+                  <div className={`message ${message.type}`}>
+                    {message.msg}
+                  </div>
+                )}
+              </>
+            ) : (
+              <div>Loading...</div>
             )}
           </>
-        ) : (
-          <div>Loading...</div>
         )}
       </div>
     );
+    
   }
 
   

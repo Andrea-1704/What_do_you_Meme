@@ -7,26 +7,38 @@ function LoginForm(props) {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
       event.preventDefault();
       
       const credentials = { username, password };
       try {
         // eslint-disable-next-line react/prop-types
-        props.login(credentials, navigate);
+        await props.login(credentials, navigate);
       } catch (err) {
-        setMessage({msg: err, type: 'danger'});
+        setMessage({ msg:err, type: 'danger' });
       }
 
       
   };
 
   return (
+
+    /*
+    <>
+        {message ? (
+          <Alert variant="danger" onClose={() => setMessage('')} dismissible>{message.msg}</Alert>
+        ) : (
+          <>
+            <div>Loading...</div>
+          </>
+        )}
+    </>
+    */
     
     <Row>
-      {message && <Row>
+      {message ? (<Row>
       <Alert variant={message.type} onClose={() => setMessage('')} dismissible>{message.msg}</Alert>
-      </Row> }
+      </Row> ):(
       <Col md={6}>
         <Form onSubmit={handleSubmit}>
           <Form.Group controlId='username' className='mb-3'>
@@ -42,7 +54,7 @@ function LoginForm(props) {
           <Button type='submit'>Login</Button>
           <Link className='btn btn-danger mx-2 my-2' to={'/'} >Cancel</Link>
       </Form>
-    </Col>
+    </Col>)}
   </Row>
   )
 }
