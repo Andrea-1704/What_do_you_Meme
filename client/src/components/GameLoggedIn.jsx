@@ -161,7 +161,7 @@ function GameLoggedIn() {
         if (meme[2] && (scelte[2]||scelte[2]===-1) && !roundFinito) {
           //memorizzo nel back and anche, tra tutte le didascalie corrette
           //per un meme quali erano esattamente le due mostrate. 
-          //Questa cosa è evitabile!
+          //cosa eliminata
           setFinito(true);//il gioco è finito
           const round1 = await API.sendRound(meme[0].id, scelte[0]);
           const round2 = await API.sendRound(meme[1].id, scelte[1]);
