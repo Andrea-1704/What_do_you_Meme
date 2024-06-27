@@ -45,10 +45,6 @@ function LoggedButton(props) {
           <button>My data</button>
         </Link>
         <span style={{ margin: '0 10px' }}>or</span>
-        <Link to="/play">
-          <button>Single Round game</button>
-        </Link>
-        <span style={{ margin: '0 10px' }}>or</span>
         <Button onClick={props.handleLogout}>Logout</Button>
       </div>
     );

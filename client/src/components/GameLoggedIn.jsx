@@ -169,6 +169,7 @@ function GameLoggedIn() {
           
           // Una volta che tutte le promesse sono risolte, invia i dati del gioco
           await API.sendGame(round1.associazioneId, round2.associazioneId, round3.associazioneId);
+          setMessage('');
         }
       } catch (err) {
         setMessageErrore({ msg: "errore nell'invio dei dati", type: 'danger' });
