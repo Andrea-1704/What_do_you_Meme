@@ -8,11 +8,13 @@ import './GameLoggedIn.css';  // Assicurati di creare un file CSS separato
 function GameLoggedIn() {
 
   const [meme, setMeme] = useState([null, null, null]);
+  const [memeCambiati, setMemeCambiati]=useState(false);//variabile che mi serve per memorizzare se ho cambiato i meme
   const [punteggi, setPunteggi] = useState([-1, -1, -1]);
   const [round, setRound] = useState(0);
   const [didascalie, setDidascalie] = useState([]);
   const [didCorrette, setDidCorrette] = useState([]);
   const [scelte, setScelte] = useState([null, null, null]);
+  const [scelteCambiate, setScelteCambiate]=useState(false);
   const [sceltaTemporanea, setSceltaTemporanea] = useState(null);//variabile che mi serve per memorizzare la scelta temporanea
   const [timeRemaining, setTimeRemaining] = useState(30); 
   const [riprova, setRiprova] = useState(0);
@@ -27,25 +29,22 @@ function GameLoggedIn() {
   useEffect(() => {
     const fetchMeme = async () => {
       try {
-        //se la scelta è errata non mostro il nuovo meme perché devo ancora attendere che 
-        //l'utente mi clicci next per farmi capire che posso andare avanti:
-        //NOTA CHE QUINDI E' DENTRO L'AZIONE DI NET CHE DEVO RENDERE SCELTA ERRATA FALSE
-        if(roundFinito===false || finito===false){
-          let riprovato=0;
+        if(roundFinito === false && finito === false) {
+          let riprovato = 0;
           if (round < 3) {
             const memeData = await API.fetchMeme();
             setMessage('');
-            //verifico che memeData sia differente da tutti i meme in meme:
-            for(let i=0;i<meme.length;i++){
-              if(meme[i]!=null &&meme[i].id===memeData.id){
-                riprovato=1;
-                setRiprova(riprova+1);
+            for(let i = 0; i < meme.length; i++) {
+              if(meme[i] != null && meme[i].id === memeData.id) {
+                riprovato = 1;
+                setRiprova(riprova + 1);
               }
             }
-            if(!riprovato){
+            if(!riprovato) {
               const newMeme = [...meme];
               newMeme[round] = memeData;
               setMeme(newMeme);
+              setMemeCambiati(memeCambiati => !memeCambiati);
               setRound(round + 1);
             }
           }
@@ -55,7 +54,8 @@ function GameLoggedIn() {
       }
     };
     fetchMeme();
-  }, [scelte, riprova]); 
+  }, [scelteCambiate, riprova]);
+  
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -120,12 +120,12 @@ function GameLoggedIn() {
     };
 
     fetchDidascalie();
-  }, [meme]);
+  }, [memeCambiati]);
 
   const gestisciDidClick = async (didascaliaId) => {
 
     try{
-      if(scelte[round-1]===null){
+      if(scelte[round-1]===null && !roundFinito){
         const score = await API.getPunteggio(meme[round-1].id, didascaliaId);
         const isCorrect = parseInt(score);
         setRoundFinito(true);//ora devo mostrare i risultati del round
@@ -177,7 +177,7 @@ function GameLoggedIn() {
     };
   
     fetchDataAndSendGame();
-  }, [scelte, roundFinito]);
+  }, [scelteCambiate, roundFinito]);
 
 
   const correctMemes = () => {
@@ -235,8 +235,10 @@ function GameLoggedIn() {
       setDidascalie([]);
       setDidCorrette([]);
       setScelte([null, null, null]);
+      setScelteCambiate(!scelteCambiate);
       setRoundFinito(false);
       setMessageErrore('');
+      
       
     };
 
@@ -284,6 +286,7 @@ function GameLoggedIn() {
     newScelte[round-1]=sceltaTemporanea;
     setScelte(newScelte);
     setTimeRemaining(30);
+    setScelteCambiate(!scelteCambiate);
   }
 
   //metodo per dire se la didascalia è corretta:
@@ -310,7 +313,7 @@ function GameLoggedIn() {
       <div className="game-container">
 
         {messageErrore ? (
-          <Alert variant="danger" onClose={() => setMessageErrore('')} dismissible>{messageErrore.msg}</Alert>
+          <Alert variant="danger">{messageErrore.msg}</Alert>
         ) : (
           <>
             {message && <div>
@@ -339,7 +342,7 @@ function GameLoggedIn() {
     return (
       <div className="game-container">
         {messageErrore ? (
-          <Alert variant="danger" onClose={() => setMessageErrore('')} dismissible>{messageErrore.msg}</Alert>
+          <Alert variant="danger">{messageErrore.msg}</Alert>
         ) : (
           <>
             <div>Loading...</div>
@@ -354,7 +357,7 @@ function GameLoggedIn() {
   return (
     <div className="game-container">
       {messageErrore ? (
-        <Alert variant="danger" onClose={() => setMessageErrore('')} dismissible>{messageErrore.msg}</Alert>
+        <Alert variant="danger">{messageErrore.msg}</Alert>
       ) : (
         <>
           {message && (

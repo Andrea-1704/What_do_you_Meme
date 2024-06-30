@@ -5,6 +5,7 @@ import './GameLoggedIn.css';  // Assicurati di creare un file CSS separato
 
 function RandomMeme() {
   const [meme, setMeme] = useState(null);
+  const [memeCambiato, setMemeCambiato] = useState(false); //variabile che mi serve per far si che il meme venga cambiato.
   const [didascalie, setDidascalie] = useState([]);
   const [didCorrette, setDidCorrette] = useState([]);
   const [scelta, setScelta] = useState(null); //se scelta la pongo pari ad uno significa che ho perso il turno.
@@ -21,6 +22,7 @@ function RandomMeme() {
           const memeData = await API.fetchMeme();
           setMessage('');
           setMeme(memeData);
+          setMemeCambiato(!memeCambiato);
       } catch (err) {
         setErrorMessage({ msg: "errore nel caricamento del meme", type: 'danger' });
       }
@@ -82,7 +84,7 @@ function RandomMeme() {
     };
     //adesso chiamiamo la funzione:
     fetchDidascalie();
-  }, [meme]);
+  }, [memeCambiato]);
 
   // const getButtonStyle = (didascaliaId) => {
   //   let scelta, punteggio;
@@ -161,7 +163,7 @@ function RandomMeme() {
       setTimeRemaining(30);
       setMessage('');
       //trovo nuova immagine:
-      setRicaricato(!ricaricato);//mi serve solo per far si che il useEffect venga chiamato.
+      setRicaricato(ricaricato=>!ricaricato);//mi serve solo per far si che il useEffect venga chiamato.
     };
 
   //return html:
@@ -195,11 +197,16 @@ function RandomMeme() {
     return (
       <div className="game-container">
         {errorMessage ? (
-          <Alert variant="danger" onClose={() => setErrorMessage('')} dismissible>{errorMessage.msg}</Alert>
+          <Alert variant="danger" >{errorMessage.msg}</Alert>
         ) : (
           <>
             {meme ? (
               <>
+              {message &&(
+                <Alert variant={message.type} onClose={() => setMessage('')} dismissible>
+                  {message.msg}
+                </Alert>
+              )}
                 <div className="meme-and-buttons">
                   <div className="meme-container">
                     {(!scelta) && (
